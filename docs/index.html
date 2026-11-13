@@ -33,10 +33,14 @@
         <div class="panel-title"><span>01</span><h2>Kamera</h2></div>
         <label>Sensor-Voreinstellung
           <select id="preset">
-            <option value="640,512,12">640 × 512 · 12 µm</option>
-            <option value="640,480,17">640 × 480 · 17 µm</option>
-            <option value="384,288,12">384 × 288 · 12 µm</option>
+            <option value="256,192,12">256 × 192 · 12 µm</option>
             <option value="320,240,12">320 × 240 · 12 µm</option>
+            <option value="384,288,12">384 × 288 · 12 µm</option>
+            <option value="384,288,17">384 × 288 · 17 µm</option>
+            <option value="400,300,12">400 × 300 · 12 µm</option>
+            <option value="640,480,17">640 × 480 · 17 µm</option>
+            <option value="640,512,12" selected>640 × 512 · 12 µm</option>
+            <option value="1280,1024,12">1280 × 1024 · 12 µm</option>
             <option value="custom">Benutzerdefiniert</option>
           </select>
         </label>
@@ -45,13 +49,30 @@
           <label>Höhe <span>px</span><input id="resH" type="number" min="60" max="2048" value="512"></label>
         </div>
         <label>Pixelabstand <span>µm</span><input id="pitch" type="number" min="5" max="50" step="0.1" value="12"></label>
-        <div class="sensor-readout"><span>Sensorfläche</span><strong id="sensorSize">7,68 × 6,14 mm</strong></div>
+        <div class="sensor-readout"><span>Aktive Sensorgröße</span><strong id="sensorSize">7,68 × 6,14 mm</strong></div>
+        <p id="inputError" class="input-error" role="status" aria-live="polite"></p>
 
         <div class="zoom-control">
           <div class="zoom-head"><label for="digitalZoom">Digitaler Zoom</label><output id="zoomLabel" for="digitalZoom">1,0×</output></div>
           <input id="digitalZoom" type="range" min="1" max="8" value="1" step="0.1">
           <div class="zoom-scale"><span>1×</span><span>4×</span><span>8×</span></div>
           <p>Vergrößert den Bildausschnitt, erzeugt aber keine zusätzlichen Sensordetails.</p>
+        </div>
+
+        <div class="netd-control">
+          <div class="netd-head"><label for="netd">NETD · thermische Empfindlichkeit</label><output id="netdLabel" for="netd">Aus</output></div>
+          <select id="netd" aria-describedby="netdHelp">
+            <option value="off" selected>Aus</option>
+            <option value="15">15 mK</option>
+            <option value="18">18 mK</option>
+            <option value="20">20 mK</option>
+            <option value="25">25 mK</option>
+            <option value="30">30 mK</option>
+            <option value="35">35 mK</option>
+            <option value="40">40 mK</option>
+            <option value="50">50 mK</option>
+          </select>
+          <p id="netdHelp">Kleinerer Wert = weniger Rauschen. Illustrativer Effekt ohne Temperaturkalibrierung; keine Vorhersage der Erkennungsleistung.</p>
         </div>
 
         <div class="scene-control">
@@ -62,13 +83,47 @@
             <button type="button" data-scene="none">Aus</button>
           </div>
           <p>Warme Bereiche weiß · kalte Bereiche schwarz</p>
+          <div id="treeControl" class="tree-control">
+            <div class="tree-head">
+              <label for="treeCount">Zusätzliche Bäume</label>
+              <output id="treeCountLabel" for="treeCount">8</output>
+            </div>
+            <input id="treeCount" type="range" min="0" max="100" value="8" step="1">
+            <div class="tree-scale"><span>0</span><span>50</span><span>100</span></div>
+            <p>Feste Anordnung · 120–720 m · nahe Bäume können das Tier verdecken</p>
+          </div>
+          <div id="fieldPlantControl" class="tree-control" hidden>
+            <div class="tree-head">
+              <label for="fieldPlantCount">Feldbewuchs</label>
+              <output id="fieldPlantCountLabel" for="fieldPlantCount">8</output>
+            </div>
+            <input id="fieldPlantCount" type="range" min="0" max="100" value="8" step="1">
+            <div class="tree-scale"><span>0</span><span>50</span><span>100</span></div>
+            <p>Büsche, Rübenkraut und junger Raps · 20–300 m · nahe Pflanzen verdecken das Tier</p>
+          </div>
         </div>
 
         <div class="divider"></div>
         <div class="subhead"><span>Brennweiten</span><button id="addLens" type="button">+ Hinzufügen</button></div>
         <div id="lensList" class="lens-list"></div>
         <div class="quick-lenses" aria-label="Brennweite schnell hinzufügen">
-          <button type="button" data-lens="19">19</button><button type="button" data-lens="25">25</button><button type="button" data-lens="50">50</button><button type="button" data-lens="75">75</button><span>mm</span>
+          <button type="button" data-lens="3.2">3,2</button>
+          <button type="button" data-lens="4">4,0</button>
+          <button type="button" data-lens="6.2">6,2</button>
+          <button type="button" data-lens="9.1">9,1</button>
+          <button type="button" data-lens="9.7">9,7</button>
+          <button type="button" data-lens="10">10</button>
+          <button type="button" data-lens="13">13</button>
+          <button type="button" data-lens="15">15</button>
+          <button type="button" data-lens="19">19</button>
+          <button type="button" data-lens="20">20</button>
+          <button type="button" data-lens="25">25</button>
+          <button type="button" data-lens="30">30</button>
+          <button type="button" data-lens="35">35</button>
+          <button type="button" data-lens="40">40</button>
+          <button type="button" data-lens="50">50</button>
+          <button type="button" data-lens="70">70</button>
+          <span>mm</span>
         </div>
       </aside>
 
@@ -78,23 +133,39 @@
           <div class="distance-value"><strong id="distanceLabel">100</strong><span>Meter</span></div>
         </div>
 
+        <div class="perception-control">
+          <div class="perception-head">
+            <div><span>Fester Vergleichsausschnitt</span><strong id="perceptionName">Vergleichsausschnitt (39,6° × 27,0°)</strong></div>
+            <div class="perception-meta">
+              <label class="perception-toggle" for="perceptionEnabled"><input id="perceptionEnabled" type="checkbox" checked aria-label="Festen Vergleichsausschnitt zuschalten"><i aria-hidden="true"></i><span id="perceptionToggleLabel">Ein</span></label>
+              <output id="perceptionSize">72 × 48 m</output>
+            </div>
+          </div>
+          <div class="perception-fixed"><span>Horizontal <b>39,6°</b></span><span>Vertikal <b>27,0°</b></span></div>
+        </div>
+
+        <label class="preview-control" for="previewLens">Kameravorschau <select id="previewLens" aria-describedby="previewHelp"></select></label>
+        <p class="simulation-note" id="previewHelp">Der gewählte Kamerarahmen zeigt das Sensorbild. Außerhalb liegt die geometrische Umgebung. Beobachterhöhe: 1,60 m · Kamera waagerecht · ebener Boden.</p>
         <div class="viewport" id="viewport">
           <div class="scanlines"></div>
           <div id="fovLayers" class="fov-layers"></div>
           <div class="crosshair h"></div><div class="crosshair v"></div>
-          <div id="animalVisual" class="animal-visual"><canvas id="animalCanvas" role="img" aria-label="Verpixelte Wildtier-Größenreferenz"></canvas></div>
+          <div id="animalVisual" class="animal-visual"><canvas id="animalCanvas" role="img" aria-label="Verpixelte, mit der Maus verschiebbare Wildtier-Größenreferenz"></canvas></div>
           <div class="axis axis-x" id="axisX"></div><div class="axis axis-y" id="axisY"></div>
           <div class="distance-chip"><span></span><b id="chipDistance">100 m</b></div>
           <div class="resolution-chip"><b id="resolutionLabel">640 × 512 px</b><span id="zoomChip">White Hot · 1,0×</span></div>
+          <div class="drag-hint">Tier ziehen · Höhe ändert Entfernung</div>
         </div>
 
         <div class="range-wrap">
-          <label for="distance">Entfernung</label>
-          <input id="distance" type="range" min="10" max="500" value="100" step="10">
+          <label for="distance">Entfernung entlang der Blickachse</label>
+          <input id="distance" type="range" min="10" max="500" value="100" step="1">
           <div id="distanceScale" class="range-scale" aria-label="Entfernungsskala in 10-Meter-Schritten"></div>
         </div>
 
         <div id="results" class="results"></div>
+        <p class="simulation-note">Winkel und Sichtfeld gelten für den gewählten Digitalzoom. „Anzeige m / px“ bezieht sich auf das simulierte Ausgaberaster in Sensorauflösung, „Nativ m / px“ auf die Objektebene pro Sensorpixel. IFOV ≈ Pixelabstand / Brennweite bleibt beim Digitalzoom gleich. Tierpixel sind projizierte Gesamtmaße; am Bildrand wird das Tier beschnitten. Die NETD-Darstellung simuliert relatives Sensorrauschen, ist aber keine radiometrische Messung.</p>
+        <p class="simulation-note">Der Vergleichsausschnitt von 39,6° × 27,0° ist eine frei gewählte Referenz. Ausgeschaltet bildet das größte Kamerasichtfeld den äußeren Maßstab. Alle Objekte teilen dieselbe Bodenperspektive; die waagerechten Bodenlinien liegen bei 10, 20, 50, 100, 200, 500 und 1000 m. Starkes Zoomen kann bodennahe Ziele bei waagerechter Kamera aus dem Bild beschneiden. Tier und Vegetation im gewählten Kamerarahmen werden gemeinsam in Sensorauflösung gerastert; Digitalzoom vergrößert nur dieses Raster.</p>
       </section>
     </section>
 
@@ -102,7 +173,7 @@
       <div class="section-copy">
         <p class="eyebrow">GRÖSSENREFERENZ</p>
         <h2>Wild im Zentrum</h2>
-        <p>Die Silhouette wird im Verhältnis zum berechneten Sichtfeld und zur gewählten Pixelauflösung skaliert. Durchschnittswerte dienen als praxisnahe Orientierung.</p>
+        <p>Die Maße beschreiben die gesamte sichtbare Silhouette einschließlich Kopf, Ohren, Geweih und Schwanz, keine Schulterhöhe. Die Beispielbreite legt den Maßstab fest; die Höhe folgt aus den unverzerrten Grafikproportionen. Tiergrößen variieren in der Praxis. Die Graustufen sind illustrativ: Temperaturen, Fell, Wetter, Fokus, Beugung und Bildverarbeitung werden nicht physikalisch simuliert.</p>
       </div>
       <div id="animalPicker" class="animal-picker"></div>
     </section>
@@ -110,13 +181,13 @@
     <section class="formula-strip">
       <span>FORMEL</span>
       <code>Winkel = 2 × atan(Sensorgröße ÷ (2 × Brennweite)) · Sichtfeld = 2 × Distanz × tan(Winkel ÷ 2)</code>
-      <p>Rechnerische Idealwerte. Verzeichnung, digitaler Zoom und herstellerspezifische Bildverarbeitung können das reale Sichtfeld beeinflussen.</p>
+      <p>Idealisiertes, verzeichnungsfreies Objektiv mit quadratischen Sensorpixeln. Sensorgröße = Pixelzahl × Pixelabstand / 1000 (µm → mm). Digitalzoom beschneidet jede Bildachse um den Zoomfaktor. Reales Sichtfeld kann durch Verzeichnung, Fokus und Gerätebeschnitt abweichen. <a href="https://www.arducam.com/blog/fov-calculator/" target="_blank" rel="noopener noreferrer">Berechnungsgrundlage: Arducam</a>.</p>
     </section>
   </main>
 
   <footer>
     <span>THERMALFOV · OPTISCHER FELDRECHNER</span>
-    <span>Tier-Piktogramme KI-generiert · Maßstab anhand hinterlegter Durchschnittsmaße</span>
+    <span>Tier-, Baum- und Feldpflanzengrafiken KI-generiert · Maßstab anhand hinterlegter Beispielmaße und Entfernungen</span>
   </footer>
   <script src="app.js"></script>
 </body>
