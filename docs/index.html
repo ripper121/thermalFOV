@@ -47,6 +47,13 @@
         <label>Pixelabstand <span>µm</span><input id="pitch" type="number" min="5" max="50" step="0.1" value="12"></label>
         <div class="sensor-readout"><span>Sensorfläche</span><strong id="sensorSize">7,68 × 6,14 mm</strong></div>
 
+        <div class="zoom-control">
+          <div class="zoom-head"><label for="digitalZoom">Digitaler Zoom</label><output id="zoomLabel" for="digitalZoom">1,0×</output></div>
+          <input id="digitalZoom" type="range" min="1" max="8" value="1" step="0.1">
+          <div class="zoom-scale"><span>1×</span><span>4×</span><span>8×</span></div>
+          <p>Vergrößert den Bildausschnitt, erzeugt aber keine zusätzlichen Sensordetails.</p>
+        </div>
+
         <div class="divider"></div>
         <div class="subhead"><span>Brennweiten</span><button id="addLens" type="button">+ Hinzufügen</button></div>
         <div id="lensList" class="lens-list"></div>
@@ -68,7 +75,7 @@
           <div id="animalVisual" class="animal-visual"><img id="animalImage" alt="Wildtier als Größenreferenz"></div>
           <div class="axis axis-x" id="axisX"></div><div class="axis axis-y" id="axisY"></div>
           <div class="distance-chip"><span></span><b id="chipDistance">100 m</b></div>
-          <div class="resolution-chip"><b id="resolutionLabel">640 × 512 px</b><span>Sensor-Ausgabe</span></div>
+          <div class="resolution-chip"><b id="resolutionLabel">640 × 512 px</b><span id="zoomChip">Sensor-Ausgabe · 1,0×</span></div>
         </div>
 
         <div class="range-wrap">

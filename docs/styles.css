@@ -24,3 +24,12 @@ main{max-width:1440px;margin:auto;padding:58px max(22px,4vw) 70px}.intro{display
 .animal-pixels{grid-column:1/-1;border-top:1px solid #242b35;padding-top:10px}
 .animal-pixels b{color:var(--lens)}
 @media(max-width:600px){.viewport{width:100%;height:auto}}
+
+.zoom-control{margin-top:20px;padding:14px 13px 12px;border:1px solid #2d3440;border-radius:9px;background:#0b0e14}
+.zoom-head{display:flex;align-items:center;justify-content:space-between}
+.zoom-head label{margin:0}
+.zoom-head output{color:var(--heat);font:500 14px DM Mono,monospace}
+.zoom-control>input{width:100%;height:auto;margin:12px 0 0;padding:0;border:0;background:transparent;accent-color:var(--heat)}
+.zoom-scale{display:flex;justify-content:space-between;margin-top:2px;color:#5f6671;font:8px DM Mono,monospace}
+.zoom-control p{margin:9px 0 0;color:#676e79;font-size:9px;line-height:1.45}
+.animal-pixels small{display:block;margin-top:4px;color:#737a85;font:8px DM Mono,monospace}
