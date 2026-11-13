@@ -13,7 +13,7 @@ Interaktiver, statischer FOV-Rechner für Wärmebildkameras. Die Website berechn
 - KI-generierte Wildtier-Piktogramme mit hinterlegten Beispielmaßen
 - illustrative Thermal-Baumgrafiken mit fester Anordnung, Entfernungsmaßstab und einstellbarer Anzahl
 - Feldbewuchs aus Büschen, Rübenkraut und jungem Raps mit fester Anordnung und maßstäblicher Entfernung
-- jeweils bis zu 100 Bäume oder Feldpflanzen; Vegetation vor der gewählten Tierentfernung kann das Tier verdecken
+- jeweils bis zu 100 Bäume oder Feldpflanzen von 10–500 m; bereits die ersten acht Objekte decken den gesamten Entfernungsbereich ab; Vegetation vor der gewählten Tierentfernung kann das Tier verdecken
 - optional zuschaltbarer Vergleichsausschnitt von 39,6° horizontal × 27,0° vertikal; ausgeschaltet wird das größte Kamerasichtfeld verwendet
 - gemeinsame Bodenperspektive mit 1,60 m Beobachterhöhe und waagerechter Kamera
 - auswählbare Vorschaubrennweite; Tier, Bewuchs und Rauschvorschau teilen ein natives Sensorpixelraster

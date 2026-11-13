@@ -34,61 +34,61 @@ function fixedUnit(index,salt){const value=Math.sin((index+1)*12.9898+salt*78.23
 // Fixed positions keep the forest identical across renders and page reloads.
 // Dimensions and depths are in metres; x is normalized in the reference frame.
 const treeLayoutBase = [
-  {x:.08,d:120,h:14,w:5,kind:'deciduous'},
-  {x:.89,d:170,h:16,w:5.5,kind:'conifer'},
-  {x:.24,d:230,h:12,w:4,kind:'conifer'},
-  {x:.72,d:310,h:17,w:6.5,kind:'deciduous'},
-  {x:.42,d:390,h:14,w:4.5,kind:'conifer'},
-  {x:.96,d:480,h:18,w:7,kind:'deciduous'},
-  {x:.58,d:590,h:11,w:3.8,kind:'conifer'},
-  {x:.14,d:720,h:15,w:5.5,kind:'deciduous'},
-  {x:.81,d:140,h:13,w:4.2,kind:'conifer'},
-  {x:.33,d:190,h:18,w:7,kind:'deciduous'},
-  {x:.65,d:260,h:15,w:5,kind:'conifer'},
-  {x:.03,d:350,h:16,w:6,kind:'deciduous'},
-  {x:.51,d:450,h:12,w:4,kind:'conifer'},
-  {x:.92,d:560,h:17,w:6.5,kind:'deciduous'},
-  {x:.19,d:660,h:13,w:4.5,kind:'conifer'},
-  {x:.76,d:700,h:15,w:5.5,kind:'deciduous'},
-  {x:.47,d:155,h:15,w:5.5,kind:'deciduous'},
-  {x:.11,d:285,h:11,w:3.8,kind:'conifer'},
-  {x:.86,d:410,h:14,w:4.8,kind:'conifer'},
-  {x:.38,d:620,h:16,w:6,kind:'deciduous'}
+  {x:.08,d:10,h:14,w:5,kind:'deciduous'},
+  {x:.89,d:80,h:16,w:5.5,kind:'conifer'},
+  {x:.24,d:150,h:12,w:4,kind:'conifer'},
+  {x:.72,d:220,h:17,w:6.5,kind:'deciduous'},
+  {x:.42,d:290,h:14,w:4.5,kind:'conifer'},
+  {x:.96,d:360,h:18,w:7,kind:'deciduous'},
+  {x:.58,d:430,h:11,w:3.8,kind:'conifer'},
+  {x:.14,d:500,h:15,w:5.5,kind:'deciduous'},
+  {x:.81,d:45,h:13,w:4.2,kind:'conifer'},
+  {x:.33,d:115,h:18,w:7,kind:'deciduous'},
+  {x:.65,d:185,h:15,w:5,kind:'conifer'},
+  {x:.03,d:255,h:16,w:6,kind:'deciduous'},
+  {x:.51,d:325,h:12,w:4,kind:'conifer'},
+  {x:.92,d:395,h:17,w:6.5,kind:'deciduous'},
+  {x:.19,d:465,h:13,w:4.5,kind:'conifer'},
+  {x:.76,d:60,h:15,w:5.5,kind:'deciduous'},
+  {x:.47,d:200,h:15,w:5.5,kind:'deciduous'},
+  {x:.11,d:340,h:11,w:3.8,kind:'conifer'},
+  {x:.86,d:450,h:14,w:4.8,kind:'conifer'},
+  {x:.38,d:490,h:16,w:6,kind:'deciduous'}
 ];
 const treeLayout=[...treeLayoutBase,...Array.from({length:80},(_,offset)=>{
   const index=offset+treeLayoutBase.length,kind=index%3===0?'deciduous':'conifer';
   const h=(kind==='deciduous'?11:10)+fixedUnit(index,3)*(kind==='deciduous'?8:7);
-  return {x:.02+fixedUnit(index,1)*.96,d:Math.round(120+fixedUnit(index,2)*600),h,w:h*(kind==='deciduous'?.34+.1*fixedUnit(index,4):.28+.08*fixedUnit(index,4)),kind};
+  return {x:.02+fixedUnit(index,1)*.96,d:Math.round(10+fixedUnit(index,2)*490),h,w:h*(kind==='deciduous'?.34+.1*fixedUnit(index,4):.28+.08*fixedUnit(index,4)),kind};
 })];
 // Fixed field vegetation from near foreground to the distant field edge.
 const fieldPlantLayoutBase = [
-  {x:.08,d:20,h:1.4,w:2.2,kind:'bush'},
-  {x:.88,d:32,h:.55,w:1.1,kind:'beet'},
-  {x:.24,d:48,h:.7,w:1.4,kind:'rapeseed'},
-  {x:.68,d:65,h:1.1,w:1.8,kind:'bush'},
-  {x:.43,d:82,h:.5,w:1,kind:'beet'},
-  {x:.95,d:105,h:.65,w:1.3,kind:'rapeseed'},
-  {x:.5,d:130,h:1.5,w:2.4,kind:'bush'},
-  {x:.14,d:160,h:.48,w:.95,kind:'beet'},
-  {x:.79,d:190,h:.62,w:1.2,kind:'rapeseed'},
-  {x:.34,d:225,h:1.2,w:2,kind:'bush'},
-  {x:.63,d:260,h:.52,w:1,kind:'beet'},
-  {x:.03,d:300,h:.68,w:1.35,kind:'rapeseed'},
-  {x:.49,d:27,h:.6,w:1.2,kind:'rapeseed'},
-  {x:.19,d:42,h:1.3,w:2.1,kind:'bush'},
-  {x:.91,d:74,h:.5,w:1,kind:'beet'},
-  {x:.73,d:118,h:.7,w:1.4,kind:'rapeseed'},
-  {x:.39,d:150,h:1.45,w:2.3,kind:'bush'},
-  {x:.12,d:205,h:.52,w:1.05,kind:'beet'},
-  {x:.84,d:245,h:.65,w:1.3,kind:'rapeseed'},
-  {x:.52,d:285,h:1.25,w:2,kind:'bush'}
+  {x:.08,d:10,h:1.4,w:2.2,kind:'bush'},
+  {x:.88,d:80,h:.55,w:1.1,kind:'beet'},
+  {x:.24,d:150,h:.7,w:1.4,kind:'rapeseed'},
+  {x:.68,d:220,h:1.1,w:1.8,kind:'bush'},
+  {x:.43,d:290,h:.5,w:1,kind:'beet'},
+  {x:.95,d:360,h:.65,w:1.3,kind:'rapeseed'},
+  {x:.5,d:430,h:1.5,w:2.4,kind:'bush'},
+  {x:.14,d:500,h:.48,w:.95,kind:'beet'},
+  {x:.79,d:45,h:.62,w:1.2,kind:'rapeseed'},
+  {x:.34,d:115,h:1.2,w:2,kind:'bush'},
+  {x:.63,d:185,h:.52,w:1,kind:'beet'},
+  {x:.03,d:255,h:.68,w:1.35,kind:'rapeseed'},
+  {x:.49,d:325,h:.6,w:1.2,kind:'rapeseed'},
+  {x:.19,d:395,h:1.3,w:2.1,kind:'bush'},
+  {x:.91,d:465,h:.5,w:1,kind:'beet'},
+  {x:.73,d:60,h:.7,w:1.4,kind:'rapeseed'},
+  {x:.39,d:200,h:1.45,w:2.3,kind:'bush'},
+  {x:.12,d:340,h:.52,w:1.05,kind:'beet'},
+  {x:.84,d:450,h:.65,w:1.3,kind:'rapeseed'},
+  {x:.52,d:490,h:1.25,w:2,kind:'bush'}
 ];
 const fieldPlantKinds=['bush','beet','rapeseed'];
 const fieldPlantLayout=[...fieldPlantLayoutBase,...Array.from({length:80},(_,offset)=>{
   const index=offset+fieldPlantLayoutBase.length,kind=fieldPlantKinds[index%fieldPlantKinds.length];
   const h=kind==='bush'?.9+fixedUnit(index,7)*.8:kind==='beet'?.35+fixedUnit(index,7)*.25:.45+fixedUnit(index,7)*.3;
   const w=kind==='bush'?h*(1.4+fixedUnit(index,8)*.35):kind==='beet'?.65+fixedUnit(index,8)*.5:.8+fixedUnit(index,8)*.65;
-  return {x:.02+fixedUnit(index,5)*.96,d:Math.round(20+fixedUnit(index,6)*280),h,w,kind};
+  return {x:.02+fixedUnit(index,5)*.96,d:Math.round(10+fixedUnit(index,6)*490),h,w,kind};
 })];
 let lenses = [35,50];
 let selectedAnimal = animals[0];
