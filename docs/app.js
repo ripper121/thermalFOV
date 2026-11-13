@@ -36,65 +36,36 @@ const spriteBounds = {
 const humanPerception = {name:'Vergleichsausschnitt',ha:39.6,va:27};
 const observerHeight = 1.6;
 function fixedUnit(index,salt){const value=Math.sin((index+1)*12.9898+salt*78.233)*43758.5453;return value-Math.floor(value)}
-// Fixed positions keep the forest identical across renders and page reloads.
-// Dimensions and depths are in metres; x is normalized in the reference frame.
-const treeLayoutBase = [
-  {x:.08,d:10,h:14,w:5,kind:'deciduous'},
-  {x:.89,d:80,h:16,w:5.5,kind:'conifer'},
-  {x:.24,d:150,h:12,w:4,kind:'conifer'},
-  {x:.72,d:220,h:17,w:6.5,kind:'deciduous'},
-  {x:.42,d:290,h:14,w:4.5,kind:'conifer'},
-  {x:.96,d:360,h:18,w:7,kind:'deciduous'},
-  {x:.58,d:430,h:11,w:3.8,kind:'conifer'},
-  {x:.14,d:500,h:15,w:5.5,kind:'deciduous'},
-  {x:.81,d:45,h:13,w:4.2,kind:'conifer'},
-  {x:.33,d:115,h:18,w:7,kind:'deciduous'},
-  {x:.65,d:185,h:15,w:5,kind:'conifer'},
-  {x:.03,d:255,h:16,w:6,kind:'deciduous'},
-  {x:.51,d:325,h:12,w:4,kind:'conifer'},
-  {x:.92,d:395,h:17,w:6.5,kind:'deciduous'},
-  {x:.19,d:465,h:13,w:4.5,kind:'conifer'},
-  {x:.76,d:60,h:15,w:5.5,kind:'deciduous'},
-  {x:.47,d:200,h:15,w:5.5,kind:'deciduous'},
-  {x:.11,d:340,h:11,w:3.8,kind:'conifer'},
-  {x:.86,d:450,h:14,w:4.8,kind:'conifer'},
-  {x:.38,d:490,h:16,w:6,kind:'deciduous'}
-];
-const treeLayout=[...treeLayoutBase,...Array.from({length:80},(_,offset)=>{
-  const index=offset+treeLayoutBase.length,kind=index%3===0?'deciduous':'conifer';
-  const h=(kind==='deciduous'?11:10)+fixedUnit(index,3)*(kind==='deciduous'?8:7);
-  return {x:.02+fixedUnit(index,1)*.96,d:Math.round(10+fixedUnit(index,2)*490),h,w:h*(kind==='deciduous'?.34+.1*fixedUnit(index,4):.28+.08*fixedUnit(index,4)),kind};
-})];
-// Fixed field vegetation from near foreground to the distant field edge.
-const fieldPlantLayoutBase = [
-  {x:.08,d:10,h:1.4,w:2.2,kind:'bush'},
-  {x:.88,d:80,h:.55,w:1.1,kind:'beet'},
-  {x:.24,d:150,h:.7,w:1.4,kind:'rapeseed'},
-  {x:.68,d:220,h:1.1,w:1.8,kind:'bush'},
-  {x:.43,d:290,h:.5,w:1,kind:'beet'},
-  {x:.95,d:360,h:.65,w:1.3,kind:'rapeseed'},
-  {x:.5,d:430,h:1.5,w:2.4,kind:'bush'},
-  {x:.14,d:500,h:.48,w:.95,kind:'beet'},
-  {x:.79,d:45,h:.62,w:1.2,kind:'rapeseed'},
-  {x:.34,d:115,h:1.2,w:2,kind:'bush'},
-  {x:.63,d:185,h:.52,w:1,kind:'beet'},
-  {x:.03,d:255,h:.68,w:1.35,kind:'rapeseed'},
-  {x:.49,d:325,h:.6,w:1.2,kind:'rapeseed'},
-  {x:.19,d:395,h:1.3,w:2.1,kind:'bush'},
-  {x:.91,d:465,h:.5,w:1,kind:'beet'},
-  {x:.73,d:60,h:.7,w:1.4,kind:'rapeseed'},
-  {x:.39,d:200,h:1.45,w:2.3,kind:'bush'},
-  {x:.12,d:340,h:.52,w:1.05,kind:'beet'},
-  {x:.84,d:450,h:.65,w:1.3,kind:'rapeseed'},
-  {x:.52,d:490,h:1.25,w:2,kind:'bush'}
-];
-const fieldPlantKinds=['bush','beet','rapeseed'];
-const fieldPlantLayout=[...fieldPlantLayoutBase,...Array.from({length:80},(_,offset)=>{
-  const index=offset+fieldPlantLayoutBase.length,kind=fieldPlantKinds[index%fieldPlantKinds.length];
-  const h=kind==='bush'?.9+fixedUnit(index,7)*.8:kind==='beet'?.35+fixedUnit(index,7)*.25:.45+fixedUnit(index,7)*.3;
-  const w=kind==='bush'?h*(1.4+fixedUnit(index,8)*.35):kind==='beet'?.65+fixedUnit(index,8)*.5:.8+fixedUnit(index,8)*.65;
-  return {x:.02+fixedUnit(index,5)*.96,d:Math.round(10+fixedUnit(index,6)*490),h,w,kind};
-})];
+// Stable world coordinates: irregular stands across the view, crops across the field.
+const treeStands=[{x:-8,d:25},{x:13,d:55},{x:-26,d:110},{x:38,d:190},{x:-65,d:310},{x:95,d:450},{x:0,d:70},{x:-4,d:240}];
+const treeLayout=[];
+for(let i=0;i<300;i++){
+  const stand=treeStands[i%treeStands.length];
+  for(let attempt=0;attempt<40;attempt++){
+    const seed=i*41+attempt;
+    const d=i===0?10:i===1?500:clamp(stand.d+(fixedUnit(seed,2)-.5)*Math.max(30,stand.d*.5),10,500);
+    const worldX=i===0?-4.5:stand.x+(fixedUnit(seed,1)-.5)*Math.max(12,stand.d*.18);
+    // Natural gaps come from spacing; the image centre has no reserved corridor.
+    if(treeLayout.some(t=>Math.hypot(t.worldX-worldX,t.d-d)<1.8))continue;
+    const young=fixedUnit(i,9)<.22,kind=fixedUnit(i,10)<.55?'conifer':'deciduous';
+    const h=young?3+fixedUnit(i,3)*5:10+fixedUnit(i,3)*12;
+    treeLayout.push({worldX,d,h,w:h*(kind==='conifer'?.23+.09*fixedUnit(i,4):.38+.14*fixedUnit(i,4)),kind});
+    break;
+  }
+}
+const fieldPlantLayout=Array.from({length:3000},(_,i)=>{
+  // Interleave depth bands so even a sparse selection spans the whole field.
+  const band=(i*17)%50,d=i===0?10:i===1?500:clamp(10+band*10+(fixedUnit(i,6)-.5)*8,10,500);
+  const halfWidth=2*d*Math.tan(humanPerception.ha*Math.PI/360)/2;
+  const worldX=(fixedUnit(i,5)*2-1)*halfWidth;
+  const edge=Math.abs(worldX)>halfWidth*.82;
+  const kind=edge&&fixedUnit(i,8)<.12?'bush':worldX<Math.sin(d/65)*halfWidth*.22?'beet':'rapeseed';
+  const h=kind==='bush'?.8+fixedUnit(i,7)*.7:kind==='beet'?.25+fixedUnit(i,7)*.25:.4+fixedUnit(i,7)*.35;
+  // Each crop sprite represents a small overlapping clump, not a lone plant.
+  const w=kind==='bush'?h*(1.2+fixedUnit(i,11)*.6):.8+fixedUnit(i,11)*1.2;
+  return {worldX,d,h,w,kind};
+});
+function snapTen(value,fallback=40){return Number.isFinite(value)?clamp(Math.round(value/10)*10,0,100):fallback}
 let lenses = [35,50];
 let selectedAnimal = animals[0];
 let selectedScene = 'forest';
@@ -107,6 +78,15 @@ let dragAnimationFrame = 0;
 let assetsReady = false;
 const rasterCache = new Map();
 const netdNoiseCache = new Map();
+const vegetationRasterCache = new WeakMap();
+function vegetationRaster(sprite){
+  if(!vegetationRasterCache.has(sprite)){
+    const canvas=document.createElement('canvas'),scale=Math.min(1,256/Math.max(sprite.width,sprite.height));
+    canvas.width=Math.max(1,Math.round(sprite.width*scale));canvas.height=Math.max(1,Math.round(sprite.height*scale));
+    canvas.getContext('2d').drawImage(sprite,0,0,canvas.width,canvas.height);vegetationRasterCache.set(sprite,canvas);
+  }
+  return vegetationRasterCache.get(sprite);
+}
 
 function lensRow(value,index){
   const row=document.createElement('div'); row.className='lens-row'; row.style.setProperty('--lens',colors[index%colors.length]);
@@ -154,9 +134,11 @@ function applyNetdNoise(ctx,v){
   ctx.save();ctx.globalCompositeOperation='overlay';ctx.globalAlpha=clamp(v.netd/300,.04,.18);ctx.imageSmoothingEnabled=false;ctx.drawImage(texture,0,0);ctx.restore();
 }
 function drawTree(ctx,tree,v,frame,index,sprite){
+  sprite=vegetationRaster(sprite);
   const fieldW=frame.w*tree.d/v.d,fieldH=frame.h*tree.d/v.d,canvas=ctx.canvas;
   const w=tree.w/fieldW*canvas.width,h=tree.h/fieldH*canvas.height,x=sceneObjectX(tree,fieldW)*canvas.width;
   const baseY=groundY(tree.d,v,frame)*canvas.height;
+  if(x+w/2<0||x-w/2>canvas.width||baseY-h>canvas.height||baseY<0)return;
   ctx.save();
   ctx.globalAlpha=1;
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
@@ -165,31 +147,33 @@ function drawTree(ctx,tree,v,frame,index,sprite){
   ctx.restore();
 }
 function drawFieldPlant(ctx,plant,v,frame,index,sprite){
+  sprite=vegetationRaster(sprite);
   const fieldW=frame.w*plant.d/v.d,fieldH=frame.h*plant.d/v.d,canvas=ctx.canvas;
   const w=plant.w/fieldW*canvas.width,h=plant.h/fieldH*canvas.height,x=sceneObjectX(plant,fieldW)*canvas.width;
   const baseY=groundY(plant.d,v,frame)*canvas.height;
+  if(x+w/2<0||x-w/2>canvas.width||baseY-h>canvas.height||baseY<0)return;
   ctx.save();ctx.globalAlpha=1;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   if(index%2){ctx.translate(x,0);ctx.scale(-1,1);ctx.drawImage(sprite,-w/2,baseY-h,w,h)}
   else ctx.drawImage(sprite,x-w/2,baseY-h,w,h);
   ctx.restore();
 }
-function forestTreeCount(){return selectedScene==='forest'?$('#treeCount').valueAsNumber:0}
-function fieldPlantCount(){return selectedScene==='field'?$('#fieldPlantCount').valueAsNumber:0}
+function forestTreeCount(){return selectedScene==='forest'?Math.round(treeLayout.length*$('#treeCount').valueAsNumber/100):0}
+function fieldPlantCount(){return selectedScene==='field'?Math.round(fieldPlantLayout.length*$('#fieldPlantCount').valueAsNumber/100):0}
 function updateSceneControls(){
   $('#treeControl').hidden=selectedScene!=='forest';
   $('#fieldPlantControl').hidden=selectedScene!=='field';
-  $('#treeCountLabel').textContent=$('#treeCount').valueAsNumber;
-  $('#fieldPlantCountLabel').textContent=$('#fieldPlantCount').valueAsNumber;
+  $('#treeCountLabel').textContent=`${$('#treeCount').valueAsNumber} %`;
+  $('#fieldPlantCountLabel').textContent=`${$('#fieldPlantCount').valueAsNumber} %`;
 }
 function restoreSceneCounts(){
-  let trees=8,plants=8;
+  let trees=40,plants=40;
   try{
     const storedTrees=localStorage.getItem('thermalFovTreeCount'),storedPlants=localStorage.getItem('thermalFovFieldPlantCount');
-    if(storedTrees!==null)trees=clamp(Number(storedTrees),0,treeLayout.length);
-    if(storedPlants!==null)plants=clamp(Number(storedPlants),0,fieldPlantLayout.length);
+    if(storedTrees!==null)trees=snapTen(Number(storedTrees));
+    if(storedPlants!==null)plants=snapTen(Number(storedPlants));
   }catch{}
-  $('#treeCount').max=treeLayout.length;$('#treeCount').value=Number.isFinite(trees)?trees:8;
-  $('#fieldPlantCount').max=fieldPlantLayout.length;$('#fieldPlantCount').value=Number.isFinite(plants)?plants:8;
+  $('#treeCount').value=trees;
+  $('#fieldPlantCount').value=plants;
   updateSceneControls();
 }
 function perceptionFrame(v,cameraOuter){
@@ -204,7 +188,7 @@ function distanceAtGroundY(y,v,frame){
   return clamp((observerHeight-selectedAnimal.h/2)/(Math.max(.000001,y-.5)*(frame.h/v.d)),10,500);
 }
 function sceneObjectX(item,fieldW){
-  const worldX=(item.x-.5)*2*item.d*Math.tan(humanPerception.ha*Math.PI/360);
+  const worldX=item.worldX??(item.x-.5)*2*item.d*Math.tan(humanPerception.ha*Math.PI/360);
   return .5+worldX/fieldW;
 }
 function drawGround(ctx,v,frame,background){
@@ -339,7 +323,7 @@ function applyAnimalDrag(){
   const v=values();if(!v)return;
   const cameraOuter=lenses.map(f=>calc(f,v)).reduce((a,b)=>a.w>b.w?a:b),frame=perceptionFrame(v,cameraOuter);
   const centerY=clamp((point.y-animalDrag.offsetY)/canvas.height,animalGroundY(500,v,frame),animalGroundY(10,v,frame));
-  const distance=Math.round(distanceAtGroundY(centerY,v,frame));
+  const distance=clamp(Math.round(distanceAtGroundY(centerY,v,frame)/10)*10,10,500);
   animalWorldX=(clamp((point.x-animalDrag.offsetX)/canvas.width,0,1)-.5)*frame.w*distance/v.d;
   $('#distance').value=String(distance);
   render();

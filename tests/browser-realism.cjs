@@ -124,19 +124,30 @@ const fs=require('node:fs');
         $('#digitalZoom').value=1;$('#previewLens').value=1;render();await settle();
         check(data().some((value,i)=>value!==unzoomed[i]),'changing preview lens changes captured sensor detail');
         $('#previewLens').value=0;
-        const source='assets/thermal-field-bush.png',savedSprite=rasterCache.get(source),savedPlant=fieldPlantLayout[0];
+        const source='assets/thermal-field-bush.png',savedSprite=rasterCache.get(source),savedLayout=fieldPlantLayout.slice(),savedDensity=$('#fieldPlantCount').value;
         const solid=document.createElement('canvas');solid.width=100;solid.height=100;
         const ctx=solid.getContext('2d');ctx.fillStyle='rgb(20,20,20)';ctx.fillRect(0,0,100,100);
-        rasterCache.set(source,Promise.resolve(solid));$('#fieldPlantCount').value=1;
+        rasterCache.set(source,Promise.resolve(solid));$('#fieldPlantCount').value=100;
         try{
-          selectedScene='field';fieldPlantLayout[0]={x:.5,d:50,h:5,w:10,kind:'bush'};
+          selectedScene='field';fieldPlantLayout.splice(0,fieldPlantLayout.length,{x:.5,d:50,h:5,w:10,kind:'bush'});
           render();await settle();
           const center=()=>data()[(Math.floor(animalGroundY(100,values(),calc(35,values()))*512)*640+320)*4];
           const covered=center();check(covered===20,'opaque foreground blocks the animal');
           fieldPlantLayout[0]={x:.5,d:300,h:5,w:10,kind:'bush'};render();await settle();
           check(center()>covered,'animal is drawn in front of more distant vegetation');
-        }finally{rasterCache.set(source,savedSprite);fieldPlantLayout[0]=savedPlant;$('#fieldPlantCount').value=8;}
+        }finally{rasterCache.set(source,savedSprite);fieldPlantLayout.splice(0,fieldPlantLayout.length,...savedLayout);$('#fieldPlantCount').value=savedDensity;}
       }finally{CanvasRenderingContext2D.prototype.drawImage=originalDraw;}
+      for(const [scene,id] of [['forest','treeCount'],['field','fieldPlantCount']]){
+        document.querySelector('[data-scene="'+scene+'"]').click();
+        check($('#'+id).step==='10','density slider uses steps of ten: '+scene);
+        for(const density of [0,10,50,100]){
+          $('#'+id).value=density;$('#'+id).dispatchEvent(new Event('input'));await settle();
+          check($('#'+id+'Label').textContent===density+' %','density output '+scene+'/'+density);
+          check(!$('#inputError').textContent,'density renders '+scene+'/'+density);
+        }
+        $('#'+id).value=40;$('#'+id).dispatchEvent(new Event('input'));await settle();
+      }
+      check($('#distance').step==='10','distance slider uses ten metre steps');
       selectedScene='forest';render();await settle();
       return {checks:checks.length,animals:animals.map(a=>({name:a.name,size:a.size}))};
     })()`);

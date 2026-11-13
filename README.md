@@ -4,7 +4,7 @@ Interaktiver, statischer FOV-Rechner für Wärmebildkameras. Die Website berechn
 
 ## Funktionen
 
-- Entfernung von 10 bis 500 m per Schieberegler
+- Entfernung von 10 bis 500 m in 10-m-Schritten per Schieberegler und beim Ziehen des Tiers
 - Tier im Ausgabefenster mit der Maus verschiebbar; vertikales Ziehen aktualisiert die Entfernung und alle davon abhängigen Werte
 - detailreiche White-Hot-Tierdarstellungen mit thermischen Abstufungen statt flacher Piktogramme
 - mehrere Brennweiten als überlagerte Sichtfelder
@@ -13,7 +13,8 @@ Interaktiver, statischer FOV-Rechner für Wärmebildkameras. Die Website berechn
 - KI-generierte Wildtier-Piktogramme mit hinterlegten Beispielmaßen
 - illustrative Thermal-Baumgrafiken mit fester Anordnung, Entfernungsmaßstab und einstellbarer Anzahl
 - Feldbewuchs aus Büschen, Rübenkraut und jungem Raps mit fester Anordnung und maßstäblicher Entfernung
-- jeweils bis zu 100 Bäume oder Feldpflanzen von 10–500 m; bereits die ersten acht Objekte decken den gesamten Entfernungsbereich ab; Vegetation vor der gewählten Tierentfernung kann das Tier verdecken
+- Baum- und Bewuchsdichte von 0–100 % in 10er-Schritten; feste Baumgruppen mit Jungwuchs und natürlichen Lücken, auch im Bildzentrum, sowie bis zu 3000 flächig verteilte Pflanzenbüschel in zusammenhängenden Rüben-/Rapsbereichen, mit Büschen am Feldrand
+- Bewuchs von 10–500 m mit unveränderlichen Weltpositionen; höhere Dichte ergänzt die bestehende Anordnung; nahe Vegetation kann das Tier verdecken
 - optional zuschaltbarer Vergleichsausschnitt von 39,6° horizontal × 27,0° vertikal; ausgeschaltet wird das größte Kamerasichtfeld verwendet
 - gemeinsame Bodenperspektive mit 1,60 m Beobachterhöhe und waagerechter Kamera
 - auswählbare Vorschaubrennweite; Tier, Bewuchs und Rauschvorschau teilen ein natives Sensorpixelraster
