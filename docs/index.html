@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="FOV-Rechner für Wärmebildkameras mit Brennweitenvergleich und Wildtier-Referenz.">
+  <title>Thermal FOV Rechner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Thermal FOV Startseite">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>THERMAL<span>FOV</span></span>
+    </a>
+    <div class="status"><span></span> LIVE-BERECHNUNG</div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div>
+        <p class="eyebrow">OPTIK · SENSOR · DISTANZ</p>
+        <h1>Was sieht deine<br><em>Wärmebildkamera?</em></h1>
+      </div>
+      <p class="lede">Vergleiche Brennweiten, prüfe das Sichtfeld und sieh sofort, wie groß ein Wildtier im Bild erscheint.</p>
+    </section>
+
+    <section class="workbench">
+      <aside class="controls panel">
+        <div class="panel-title"><span>01</span><h2>Kamera</h2></div>
+        <label>Sensor-Voreinstellung
+          <select id="preset">
+            <option value="640,512,12">640 × 512 · 12 µm</option>
+            <option value="640,480,17">640 × 480 · 17 µm</option>
+            <option value="384,288,12">384 × 288 · 12 µm</option>
+            <option value="320,240,12">320 × 240 · 12 µm</option>
+            <option value="custom">Benutzerdefiniert</option>
+          </select>
+        </label>
+        <div class="input-grid">
+          <label>Breite <span>px</span><input id="resW" type="number" min="80" max="2048" value="640"></label>
+          <label>Höhe <span>px</span><input id="resH" type="number" min="60" max="2048" value="512"></label>
+        </div>
+        <label>Pixelabstand <span>µm</span><input id="pitch" type="number" min="5" max="50" step="0.1" value="12"></label>
+        <div class="sensor-readout"><span>Sensorfläche</span><strong id="sensorSize">7,68 × 6,14 mm</strong></div>
+
+        <div class="divider"></div>
+        <div class="subhead"><span>Brennweiten</span><button id="addLens" type="button">+ Hinzufügen</button></div>
+        <div id="lensList" class="lens-list"></div>
+        <div class="quick-lenses" aria-label="Brennweite schnell hinzufügen">
+          <button type="button" data-lens="19">19</button><button type="button" data-lens="25">25</button><button type="button" data-lens="50">50</button><button type="button" data-lens="75">75</button><span>mm</span>
+        </div>
+      </aside>
+
+      <section class="visual panel">
+        <div class="visual-head">
+          <div class="panel-title"><span>02</span><h2>Sichtfeld</h2></div>
+          <div class="distance-value"><strong id="distanceLabel">100</strong><span>Meter</span></div>
+        </div>
+
+        <div class="viewport" id="viewport">
+          <div class="scanlines"></div>
+          <div id="fovLayers" class="fov-layers"></div>
+          <div class="crosshair h"></div><div class="crosshair v"></div>
+          <div id="animalVisual" class="animal-visual"><img id="animalImage" alt="Wildtier als Größenreferenz"></div>
+          <div class="axis axis-x" id="axisX"></div><div class="axis axis-y" id="axisY"></div>
+          <div class="distance-chip"><span></span><b id="chipDistance">100 m</b></div>
+        </div>
+
+        <div class="range-wrap">
+          <label for="distance">Entfernung</label>
+          <input id="distance" type="range" min="10" max="500" value="100" step="1">
+          <div class="range-scale"><span>10 m</span><span>250 m</span><span>500 m</span></div>
+        </div>
+
+        <div id="results" class="results"></div>
+      </section>
+    </section>
+
+    <section class="animal-section">
+      <div class="section-copy">
+        <p class="eyebrow">GRÖSSENREFERENZ</p>
+        <h2>Wild im Zentrum</h2>
+        <p>Die Silhouette wird im Verhältnis zum berechneten Sichtfeld skaliert. Durchschnittswerte dienen als praxisnahe Orientierung.</p>
+      </div>
+      <div id="animalPicker" class="animal-picker"></div>
+    </section>
+
+    <section class="formula-strip">
+      <span>FORMEL</span>
+      <code>Winkel = 2 × atan(Sensorgröße ÷ (2 × Brennweite)) · Sichtfeld = 2 × Distanz × tan(Winkel ÷ 2)</code>
+      <p>Rechnerische Idealwerte. Verzeichnung, digitaler Zoom und herstellerspezifische Bildverarbeitung können das reale Sichtfeld beeinflussen.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>THERMALFOV · OPTISCHER FELDRECHNER</span>
+    <details><summary>Bildnachweise (CC)</summary><p>Fotos: <a href="https://commons.wikimedia.org/wiki/File:Red_Deer_at_Dawn_-_Flickr_-_Richard.Fisher.jpg">Richard Fisher / CC BY 2.0</a>, <a href="https://commons.wikimedia.org/wiki/File:Portrait_of_a_red_fox_in_Rautas_fj%C3%A4llurskog.jpg">ClaudiaTen / CC BY-SA 4.0</a>, <a href="https://commons.wikimedia.org/wiki/File:Wild_Boar,_Bamff_-_geograph.org.uk_-_1532313.jpg">Trish Steel / CC BY-SA 2.0</a>, <a href="https://commons.wikimedia.org/wiki/File:Roe_deer_-_geograph.org.uk_-_492166.jpg">Lis Burke / CC BY-SA 2.0</a>.</p></details>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
