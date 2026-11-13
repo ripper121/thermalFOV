@@ -14,3 +14,13 @@ main{max-width:1440px;margin:auto;padding:58px max(22px,4vw) 70px}.intro{display
 .animal-card:hover img,.animal-card.active img{filter:brightness(1)}
 @media(max-width:980px){.workbench{grid-template-columns:1fr}.controls{position:static}.animal-section{grid-template-columns:1fr}.intro{align-items:start;flex-direction:column}.lede{max-width:650px}.animal-picker{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){main{padding-top:38px}.topbar{height:62px}.status{display:none}.intro h1{font-size:44px}.visual,.controls{padding:18px}.viewport{height:390px}.results{grid-template-columns:1fr 1fr}.animal-picker{grid-template-columns:1fr 1fr}.animal-card{min-height:155px}.formula-strip{grid-template-columns:1fr;gap:10px}footer{flex-direction:column;gap:15px}footer details{text-align:left}.axis-y{display:none}}
+
+/* Sensor-native output: viewport and grid follow the selected pixel resolution. */
+.viewport{--sensor-ratio:1.25;--grid-x:6.25%;--grid-y:7.8125%;width:min(100%,calc(610px * var(--sensor-ratio)));height:auto;aspect-ratio:var(--sensor-ratio);margin-inline:auto}
+.viewport:before{background-size:var(--grid-x) var(--grid-y)}
+.resolution-chip{position:absolute;right:14px;top:14px;z-index:7;padding:7px 9px;background:#0a0d12cc;border:1px solid #343b47;text-align:right}
+.resolution-chip b{display:block;font:500 10px DM Mono;color:#d9dce1}
+.resolution-chip span{display:block;margin-top:2px;color:#6f7682;font:8px DM Mono;text-transform:uppercase;letter-spacing:.08em}
+.animal-pixels{grid-column:1/-1;border-top:1px solid #242b35;padding-top:10px}
+.animal-pixels b{color:var(--lens)}
+@media(max-width:600px){.viewport{width:100%;height:auto}}
