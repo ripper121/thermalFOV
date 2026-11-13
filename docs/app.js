@@ -40,9 +40,8 @@ async function drawPixelScene(v,outer){
   const w=Math.max(1,animal.w/outer.w*canvas.width),h=Math.max(1,animal.h/outer.h*canvas.height),mask=document.createElement('canvas');
   mask.width=Math.max(1,Math.round(w));mask.height=Math.max(1,Math.round(h));
   const maskCtx=mask.getContext('2d');maskCtx.imageSmoothingEnabled=true;maskCtx.imageSmoothingQuality='high';maskCtx.drawImage(animalImg,0,0,mask.width,mask.height);
-  const pixels=maskCtx.getImageData(0,0,mask.width,mask.height),data=pixels.data;
-  for(let i=0;i<data.length;i+=4){const visible=data[i+3]>=96;data[i]=255;data[i+1]=255;data[i+2]=255;data[i+3]=visible?255:0}
-  maskCtx.putImageData(pixels,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(mask,(canvas.width-mask.width)/2,(canvas.height-mask.height)/2);
+  maskCtx.globalCompositeOperation='source-in';maskCtx.fillStyle='#fff';maskCtx.fillRect(0,0,mask.width,mask.height);
+  ctx.imageSmoothingEnabled=false;ctx.drawImage(mask,(canvas.width-mask.width)/2,(canvas.height-mask.height)/2);
 }
 function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
 function values(){return {rw:clamp(+$('#resW').value||640,1,10000),rh:clamp(+$('#resH').value||512,1,10000),pitch:clamp(+$('#pitch').value||12,.1,100),d:+$('#distance').value,z:+$('#digitalZoom').value}}
