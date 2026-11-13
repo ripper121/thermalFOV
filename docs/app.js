@@ -1,5 +1,10 @@
 const $ = (s) => document.querySelector(s);
 const colors = ['#ff5b2e','#ffb020','#75b8ff','#71d6a6','#d18cff'];
+const sceneBackgrounds = {
+  forest:{src:'assets/background-forest-white-hot.png',focusY:.45},
+  field:{src:'assets/background-field-white-hot.png',focusY:.49},
+  none:{src:null,focusY:.5}
+};
 const animals = [
   {id:'boar',name:'Wildschwein',w:1.5,img:'assets/thermal-animal-wild-boar.png'},
   {id:'deer',name:'Rothirsch',w:2.1,img:'assets/thermal-animal-red-deer.png'},
@@ -202,7 +207,7 @@ function sceneObjectX(item,fieldW){
   const worldX=(item.x-.5)*2*item.d*Math.tan(humanPerception.ha*Math.PI/360);
   return .5+worldX/fieldW;
 }
-function drawGround(ctx,v,frame){
+function drawGround(ctx,v,frame,background){
   const {width,height}=ctx.canvas;
   ctx.fillStyle='#080808';ctx.fillRect(0,0,width,height);
   if(selectedScene==='none')return;
@@ -210,6 +215,16 @@ function drawGround(ctx,v,frame){
   ctx.fillStyle=sky;ctx.fillRect(0,0,width,height/2);
   const ground=ctx.createLinearGradient(0,height/2,0,height);ground.addColorStop(0,'#353535');ground.addColorStop(1,'#505050');
   ctx.fillStyle=ground;ctx.fillRect(0,height/2,width,height/2);
+  if(background){
+    // Decorative scenery; align its meadow transition with the ground horizon.
+    const focus=background.height*sceneBackgrounds[selectedScene].focusY;
+    const angularScale=Math.tan(humanPerception.ha*Math.PI/360)/(frame.w/(2*v.d));
+    const scale=Math.max(width/background.width*angularScale,width/background.width,height/2/focus,height/2/(background.height-focus));
+    const imageW=background.width*scale,imageH=background.height*scale;
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    ctx.drawImage(background,(width-imageW)/2,height/2-focus*scale,imageW,imageH);
+    ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(0,0,width,height);
+  }
   // Ground lines share the exact same projection as the feet of every object.
   ctx.strokeStyle='#ffffff18';ctx.lineWidth=1;
   for(const distance of [10,20,50,100,200,500,1000]){
@@ -224,12 +239,12 @@ async function drawPixelScene(v,frame,cameraOuter){
   canvas.width=frame.isPerception?1000:v.rw;
   canvas.height=frame.isPerception?Math.round(canvas.width/ratio):v.rh;
   animalBounds=null;
-  const [animalImg,coniferImg,deciduousImg,bushImg,beetImg,rapeseedImg]=await Promise.all([loadRaster(animal.img),loadRaster(selectedScene==='forest'?treeSprites.conifer:null),loadRaster(selectedScene==='forest'?treeSprites.deciduous:null),loadRaster(selectedScene==='field'?fieldSprites.bush:null),loadRaster(selectedScene==='field'?fieldSprites.beet:null),loadRaster(selectedScene==='field'?fieldSprites.rapeseed:null)]);if(version!==drawVersion)return;
+  const [animalImg,coniferImg,deciduousImg,bushImg,beetImg,rapeseedImg,backgroundImg]=await Promise.all([loadRaster(animal.img),loadRaster(selectedScene==='forest'?treeSprites.conifer:null),loadRaster(selectedScene==='forest'?treeSprites.deciduous:null),loadRaster(selectedScene==='field'?fieldSprites.bush:null),loadRaster(selectedScene==='field'?fieldSprites.beet:null),loadRaster(selectedScene==='field'?fieldSprites.rapeseed:null),loadRaster(sceneBackgrounds[selectedScene].src)]);if(version!==drawVersion)return;
   const visibleTrees=treeLayout.slice(0,forestTreeCount()).map((tree,index)=>({...tree,index})).sort((a,b)=>b.d-a.d);
   const visiblePlants=fieldPlantLayout.slice(0,fieldPlantCount()).map((plant,index)=>({...plant,index})).sort((a,b)=>b.d-a.d);
   const fieldImages={bush:bushImg,beet:beetImg,rapeseed:rapeseedImg};
   const drawScene=(ctx,sceneFrame)=>{
-    drawGround(ctx,v,sceneFrame);
+    drawGround(ctx,v,sceneFrame,backgroundImg);
     ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
     const drawVegetation=predicate=>{
       visibleTrees.filter(predicate).forEach(tree=>drawTree(ctx,tree,v,sceneFrame,tree.index,tree.kind==='conifer'?coniferImg:deciduousImg));

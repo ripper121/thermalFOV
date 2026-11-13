@@ -74,8 +74,8 @@ Gerätebeschnitt, Wetter, Beugung und gerätespezifische Bildverarbeitung sind n
 modelliert. Die NETD-Vorschau legt reproduzierbares Rauschen auf das gewählte
 Sensorbild. Ihre Stärke ist illustrativ und nicht temperaturkalibriert; ohne
 radiometrische Szenendaten kann sie keine reale Erkennungsleistung vorhersagen.
-Der frühere fotografische Hintergrund mit unbekannten Objektgrößen wurde durch
-einen schematischen Boden ersetzt. Die darüberliegenden Objekte haben bekannte
+Die Wald- und Feldbilder dienen als atmosphärischer Hintergrund ohne kalibrierte
+Objektgrößen. Die darüberliegenden Tiere, Bäume und Feldpflanzen haben bekannte
 Beispielabmessungen und perspektivisch konsistente Positionen. Verdeckung nutzt
 die Transparenzmasken und die Tiefenreihenfolge der ebenen Objektgrafiken.
 
