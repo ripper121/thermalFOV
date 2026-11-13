@@ -54,6 +54,16 @@
           <p>Vergrößert den Bildausschnitt, erzeugt aber keine zusätzlichen Sensordetails.</p>
         </div>
 
+        <div class="scene-control">
+          <div class="scene-head"><span>Hintergrund</span><small>White Hot</small></div>
+          <div class="scene-tabs" role="group" aria-label="Thermal-Hintergrund auswählen">
+            <button type="button" data-scene="forest" class="active">Wald</button>
+            <button type="button" data-scene="field">Feld</button>
+            <button type="button" data-scene="none">Aus</button>
+          </div>
+          <p>Warme Bereiche weiß · kalte Bereiche schwarz</p>
+        </div>
+
         <div class="divider"></div>
         <div class="subhead"><span>Brennweiten</span><button id="addLens" type="button">+ Hinzufügen</button></div>
         <div id="lensList" class="lens-list"></div>
@@ -75,7 +85,7 @@
           <div id="animalVisual" class="animal-visual"><canvas id="animalCanvas" role="img" aria-label="Verpixelte Wildtier-Größenreferenz"></canvas></div>
           <div class="axis axis-x" id="axisX"></div><div class="axis axis-y" id="axisY"></div>
           <div class="distance-chip"><span></span><b id="chipDistance">100 m</b></div>
-          <div class="resolution-chip"><b id="resolutionLabel">640 × 512 px</b><span id="zoomChip">Sensor-Ausgabe · 1,0×</span></div>
+          <div class="resolution-chip"><b id="resolutionLabel">640 × 512 px</b><span id="zoomChip">White Hot · 1,0×</span></div>
         </div>
 
         <div class="range-wrap">

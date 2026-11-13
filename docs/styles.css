@@ -44,3 +44,14 @@ main{max-width:1440px;margin:auto;padding:58px max(22px,4vw) 70px}.intro{display
 .distance-tick:first-child b{left:0;transform:none}
 .distance-tick:last-child b{left:auto;right:0;transform:none}
 @media(max-width:700px){.distance-tick.major b{display:none}.distance-tick:nth-child(10n) b,.distance-tick:first-child b,.distance-tick:last-child b{display:block}}
+
+.scene-control{margin-top:12px;padding:13px;border:1px solid #2d3440;border-radius:9px;background:#0b0e14}
+.scene-head{display:flex;align-items:center;justify-content:space-between;color:#949aa6;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.scene-head small{color:#d9dce1;font:8px DM Mono,monospace;letter-spacing:.1em}
+.scene-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:10px}
+.scene-tabs button{height:32px;border:1px solid #2d3440;border-radius:6px;background:#121720;color:#858c97;font-size:10px;font-weight:700}
+.scene-tabs button:hover{border-color:#6e7580;color:white}.scene-tabs button.active{border-color:#d8dce1;background:#e8ebef;color:#0b0e14;box-shadow:0 0 12px #fff3}
+.scene-control p{margin:8px 0 0;color:#686f7a;font-size:8px;line-height:1.4}
+
+/* Keep measurement overlays above the opaque sensor canvas. */
+.scanlines{z-index:6}.fov-layer{z-index:7}.crosshair{z-index:8}.axis,.distance-chip,.resolution-chip{z-index:9}
