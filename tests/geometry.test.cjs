@@ -109,3 +109,16 @@ test('camera view tracks the animal without changing scale or ground contact',()
   context.document={querySelector:()=>({checked:true})};
   assert.equal(run('perceptionFrame(v,c).aimX'),undefined);
 });
+
+test('background tree line keeps its 500 metre scale and ground anchor',()=>{
+  for(const sceneName of ['forest','field'])for(const d of [10,100,500])
+    for(const z of [1,8])for(const aimY of [0,.012]){
+      context.v={...base,d,z};context.aimY=aimY;context.sceneName=sceneName;
+      run('frame={...calc(35,v),aimY,aimX:.02};scene=sceneBackgrounds[sceneName]');
+      const p=run('backgroundPlacement(v,frame,640,512,{width:1536,height:1024},scene)');
+      const scene=run('scene'),frame=run('frame');
+      close(p.scaleY*scene.treePixels,scene.treeHeight/(frame.h*500/d)*512);
+      close(p.y+p.scaleY*scene.basePixelY,run('groundY(500,v,frame)*512'));
+      close(p.scaleX/p.scaleY,(640/frame.w)/(512/frame.h));
+    }
+});

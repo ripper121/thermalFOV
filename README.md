@@ -80,8 +80,15 @@ Gerätebeschnitt, Wetter, Beugung und gerätespezifische Bildverarbeitung sind n
 modelliert. Die NETD-Vorschau legt reproduzierbares Rauschen auf das gewählte
 Sensorbild. Ihre Stärke ist illustrativ und nicht temperaturkalibriert; ohne
 radiometrische Szenendaten kann sie keine reale Erkennungsleistung vorhersagen.
-Die Wald- und Feldbilder dienen als atmosphärischer Hintergrund ohne kalibrierte
-Objektgrößen. Die darüberliegenden Tiere, Bäume und Feldpflanzen haben bekannte
+Die neu generierten Wald- und Feldbilder enthalten im Zentrum einen entfernten
+Baumsaum; das Waldbild zeigt zusätzlich näheren Bewuchs am linken und rechten Rand.
+Referenzbäume im zentralen Baumsaum werden auf 18 m Höhe im Wald (82 Quellpixel) bzw. 16 m im
+Feld (55 Quellpixel) in 500 m Entfernung skaliert. Die Stammfüße liegen auf derselben
+projizierten 500-m-Bodenlinie wie die dynamischen Objekte. Größere Bildausschnitte
+werden durch seitliche Wiederholung und Ergänzung von Himmel/Boden gefüllt, statt
+den Baumsaum zu vergrößern. Die übrigen Bilddetails bleiben illustrativ.
+Prompts und Referenzpunkte: [Hintergrundgenerierung](docs/assets/background-generation.md).
+Die darüberliegenden Tiere, Bäume und Feldpflanzen haben bekannte
 Beispielabmessungen und perspektivisch konsistente Positionen. Verdeckung nutzt
 die Transparenzmasken und die Tiefenreihenfolge der ebenen Objektgrafiken.
 

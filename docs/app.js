@@ -1,9 +1,9 @@
 const $ = (s) => document.querySelector(s);
 const colors = ['#ff5b2e','#ffb020','#75b8ff','#71d6a6','#d18cff'];
 const sceneBackgrounds = {
-  forest:{src:'assets/background-forest-white-hot.png',focusY:.45},
-  field:{src:'assets/background-field-white-hot.png',focusY:.49},
-  none:{src:null,focusY:.5}
+  forest:{src:'assets/background-forest-white-hot.png',distance:500,treeHeight:18,treePixels:82,basePixelY:574},
+  field:{src:'assets/background-field-white-hot.png',distance:500,treeHeight:16,treePixels:55,basePixelY:542},
+  none:{src:null}
 };
 const animals = [
   {id:'boar',name:'Wildschwein',w:1.5,img:'assets/thermal-animal-wild-boar.png'},
@@ -192,6 +192,17 @@ function sceneObjectX(item,fieldW,v,frame){
   const worldX=item.worldX??(item.x-.5)*2*item.d*Math.tan(humanPerception.ha*Math.PI/360);
   return .5+worldX/fieldW-(frame?.aimX||0)/(frame?frame.w/v.d:1);
 }
+function backgroundPlacement(v,frame,width,height,image,scene){
+  // Calibrate a representative tree in the image, not the image's outer edges.
+  const metresPerPixel=scene.treeHeight/scene.treePixels;
+  const scaleX=metresPerPixel*width/(frame.w*scene.distance/v.d);
+  const scaleY=metresPerPixel*height/(frame.h*scene.distance/v.d);
+  return {
+    x:(width-image.width*scaleX)/2-(frame.aimX||0)/(frame.w/v.d)*width,
+    y:groundY(scene.distance,v,frame)*height-scene.basePixelY*scaleY,
+    w:image.width*scaleX,h:image.height*scaleY,scaleX,scaleY
+  };
+}
 function drawGround(ctx,v,frame,background){
   const {width,height}=ctx.canvas;
   ctx.fillStyle='#080808';ctx.fillRect(0,0,width,height);
@@ -202,14 +213,15 @@ function drawGround(ctx,v,frame,background){
   const ground=ctx.createLinearGradient(0,split,0,Math.max(split+1,height));ground.addColorStop(0,'#353535');ground.addColorStop(1,'#505050');
   ctx.fillStyle=ground;ctx.fillRect(0,split,width,height-split);
   if(background){
-    // Decorative scenery; align its meadow transition with the ground horizon.
-    const focus=background.height*sceneBackgrounds[selectedScene].focusY;
-    const angularScale=Math.tan(humanPerception.ha*Math.PI/360)/(frame.w/(2*v.d));
-    const shiftX=(frame.aimX||0)/(frame.w/v.d)*width;
-    const scale=Math.max(width/background.width*angularScale,(width+2*Math.abs(shiftX))/background.width,Math.max(0,horizon)/focus,Math.max(0,height-horizon)/(background.height-focus));
-    const imageW=background.width*scale,imageH=background.height*scale;
+    const p=backgroundPlacement(v,frame,width,height,background,sceneBackgrounds[selectedScene]);
     ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-    ctx.drawImage(background,(width-imageW)/2-shiftX,horizon-focus*scale,imageW,imageH);
+    // Extend sky/soil and tile sideways instead of enlarging the 500 m tree line.
+    for(let x=p.x+Math.floor(-p.x/p.w)*p.w;x<width;x+=p.w){
+      if(p.y>0)ctx.drawImage(background,0,0,background.width,1,x,0,p.w,Math.min(height,p.y));
+      const bottom=Math.max(0,p.y+p.h);
+      if(bottom<height)ctx.drawImage(background,0,background.height-64,background.width,64,x,bottom,p.w,height-bottom);
+      ctx.drawImage(background,x,p.y,p.w,p.h);
+    }
     ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(0,0,width,height);
   }
   // Ground lines share the exact same projection as the feet of every object.
