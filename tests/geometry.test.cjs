@@ -74,15 +74,15 @@ test('vegetation spans the ground area with separated trunks and varied growth',
     assert.equal(Math.max(...layout.slice(0,30).map(item=>item.d)),500);
   }
   assert.ok(trees.some(t=>t.h<8)&&trees.some(t=>t.h>18));
-  assert.ok(trees.slice(0,120).some(t=>Math.abs(t.worldX)<2),'centre contains trees at default density');
+  assert.ok(trees.slice(0,120).some(t=>Math.abs(t.worldX)<2),'centre contains trees at 40 percent density');
   for(let i=0;i<trees.length;i++)for(let j=0;j<i;j++)
     assert.ok(Math.hypot(trees[i].worldX-trees[j].worldX,trees[i].d-trees[j].d)>=1.8);
   assert.ok(plants.some(p=>p.worldX<0)&&plants.some(p=>p.worldX>0));
   assert.ok(plants.filter(p=>p.kind==='bush').length<plants.length*.1);
 });
 
-test('stored vegetation density migrates to valid steps of ten',()=>{
-  for(const [input,expected] of [[8,10],[44,40],[55,60],[-20,0],[150,100],[NaN,40]]){
+test('vegetation density uses valid steps of ten with zero as fallback',()=>{
+  for(const [input,expected] of [[8,10],[44,40],[55,60],[-20,0],[150,100],[NaN,0]]){
     context.density=input;assert.equal(run('snapTen(density)'),expected);
   }
 });

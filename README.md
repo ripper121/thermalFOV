@@ -15,6 +15,7 @@ Interaktiver, statischer FOV-Rechner für Wärmebildkameras. Die Website berechn
 - Feldbewuchs aus Büschen, Rübenkraut und jungem Raps mit fester Anordnung und maßstäblicher Entfernung
 - Baum- und Bewuchsdichte von 0–100 % in 10er-Schritten; feste Baumgruppen mit Jungwuchs und natürlichen Lücken, auch im Bildzentrum, sowie bis zu 3000 flächig verteilte Pflanzenbüschel in zusammenhängenden Rüben-/Rapsbereichen, mit Büschen am Feldrand
 - Bewuchs von 10–500 m mit unveränderlichen Weltpositionen; höhere Dichte ergänzt die bestehende Anordnung; nahe Vegetation kann das Tier verdecken
+- Baum- und Feldbewuchs starten bei jedem Laden mit 0 %; die atmosphärischen Hintergrundbilder bleiben sichtbar
 - optional zuschaltbarer Vergleichsausschnitt von 39,6° horizontal × 27,0° vertikal; ausgeschaltet wird das größte Kamerasichtfeld verwendet
 - gemeinsame Bodenperspektive mit 1,60 m Beobachterhöhe; bei eingeschaltetem Vergleichsausschnitt waagerechte Kamera, ansonsten folgt der Bildausschnitt dem Tier und hält es horizontal und vertikal zentriert
 - auswählbare Vorschaubrennweite; Tier, Bewuchs und Rauschvorschau teilen ein natives Sensorpixelraster

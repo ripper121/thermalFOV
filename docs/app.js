@@ -65,7 +65,7 @@ const fieldPlantLayout=Array.from({length:3000},(_,i)=>{
   const w=kind==='bush'?h*(1.2+fixedUnit(i,11)*.6):.8+fixedUnit(i,11)*1.2;
   return {worldX,d,h,w,kind};
 });
-function snapTen(value,fallback=40){return Number.isFinite(value)?clamp(Math.round(value/10)*10,0,100):fallback}
+function snapTen(value,fallback=0){return Number.isFinite(value)?clamp(Math.round(value/10)*10,0,100):fallback}
 let lenses = [35,50];
 let selectedAnimal = animals[0];
 let selectedScene = 'forest';
@@ -165,15 +165,9 @@ function updateSceneControls(){
   $('#treeCountLabel').textContent=`${$('#treeCount').valueAsNumber} %`;
   $('#fieldPlantCountLabel').textContent=`${$('#fieldPlantCount').valueAsNumber} %`;
 }
-function restoreSceneCounts(){
-  let trees=40,plants=40;
-  try{
-    const storedTrees=localStorage.getItem('thermalFovTreeCount'),storedPlants=localStorage.getItem('thermalFovFieldPlantCount');
-    if(storedTrees!==null)trees=snapTen(Number(storedTrees));
-    if(storedPlants!==null)plants=snapTen(Number(storedPlants));
-  }catch{}
-  $('#treeCount').value=trees;
-  $('#fieldPlantCount').value=plants;
+function resetSceneCounts(){
+  $('#treeCount').value=0;
+  $('#fieldPlantCount').value=0;
   updateSceneControls();
 }
 function perceptionFrame(v,cameraOuter){
@@ -380,8 +374,8 @@ $('#digitalZoom').addEventListener('input',render);
 $('#previewLens').addEventListener('change',render);
 $('#netd').addEventListener('change',e=>{try{localStorage.setItem('thermalFovNetd',e.target.value)}catch{}render()});
 $('#perceptionEnabled').addEventListener('change',e=>{try{localStorage.setItem('thermalFovPerceptionEnabled',String(e.target.checked))}catch{}render()});
-$('#treeCount').addEventListener('input',e=>{updateSceneControls();try{localStorage.setItem('thermalFovTreeCount',e.target.value)}catch{}render()});
-$('#fieldPlantCount').addEventListener('input',e=>{updateSceneControls();try{localStorage.setItem('thermalFovFieldPlantCount',e.target.value)}catch{}render()});
+$('#treeCount').addEventListener('input',e=>{e.target.value=snapTen(e.target.valueAsNumber);updateSceneControls();render()});
+$('#fieldPlantCount').addEventListener('input',e=>{e.target.value=snapTen(e.target.valueAsNumber);updateSceneControls();render()});
 $('#addLens').addEventListener('click',()=>{if(!values())return;lenses.push(Math.min(300,lenses[lenses.length-1]+10));renderLensList();render()});
 document.querySelectorAll('[data-lens]').forEach(b=>b.addEventListener('click',()=>{const n=+b.dataset.lens;if(!lenses.includes(n)){lenses.push(n);renderLensList();render()}}));
 document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>{selectedScene=b.dataset.scene;document.querySelectorAll('[data-scene]').forEach(x=>x.classList.toggle('active',x===b));updateSceneControls();render()}));
@@ -396,6 +390,6 @@ async function initialize(){
     animal.size=`${fmt(animal.w,2)} × ${fmt(animal.h,2)} m`;
   }));
   assetsReady=true;
-  restoreSceneCounts();renderDistanceScale();renderLensList();renderAnimals();render();
+  resetSceneCounts();renderDistanceScale();renderLensList();renderAnimals();render();
 }
 initialize().catch(error=>{$('#inputError').textContent=error.message});
