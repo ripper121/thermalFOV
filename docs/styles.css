@@ -154,3 +154,9 @@ summary:focus-visible{outline:2px solid var(--heat);outline-offset:3px;border-ra
   .animal-section{gap:16px}
   .animal-card{min-height:135px}
 }
+.header-actions{display:flex;align-items:center;gap:22px}
+.language-switch{display:flex;align-items:center;gap:8px;color:#949aa6;font-size:10px}
+.language-switch select{max-width:140px;min-height:34px;padding:5px 9px;border:1px solid #343b47;border-radius:6px;background:#10141b;color:#e8ebef;font-size:12px}
+.language-switch select:focus-visible{outline:2px solid var(--heat);outline-offset:3px}
+.animal-card.active:before{content:attr(data-active-label)}
+@media(max-width:600px){.header-actions{gap:0}.language-switch>span{display:none}.language-switch select{max-width:120px}}

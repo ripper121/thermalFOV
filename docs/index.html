@@ -16,7 +16,16 @@
       <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
       <span>THERMAL<span>FOV</span></span>
     </a>
-    <div class="status"><span></span> LIVE-BERECHNUNG</div>
+    <div class="header-actions">
+      <div class="status"><span></span> LIVE-BERECHNUNG</div>
+      <label class="language-switch" for="language"><span>Sprache</span>
+        <select id="language" aria-label="Sprache">
+          <option value="auto">Automatisch</option>
+          <option value="de">Deutsch</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+    </div>
   </header>
 
   <main>
@@ -218,6 +227,7 @@
     <span>THERMALFOV · OPTISCHER FELDRECHNER</span>
     <span>Tier-, Baum- und Feldpflanzengrafiken KI-generiert · Maßstab anhand hinterlegter Beispielmaße und Entfernungen</span>
   </footer>
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

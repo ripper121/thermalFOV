@@ -20,6 +20,7 @@ Interaktiver, statischer FOV-Rechner für Wärmebildkameras. Die Website berechn
 - gemeinsame Bodenperspektive mit 1,60 m Beobachterhöhe; bei eingeschaltetem Vergleichsausschnitt waagerechte Kamera, ansonsten folgt der Bildausschnitt dem Tier und hält es horizontal und vertikal zentriert
 - auswählbare Vorschaubrennweite; Tier, Bewuchs und Rauschvorschau teilen ein natives Sensorpixelraster
 - responsive Darstellung für Desktop und Mobilgeräte
+- Deutsch und Englisch mit automatischer Wahl anhand der primären Browsersprache (Deutsch bei `de`, sonst Englisch); gespeicherte manuelle Sprachwahl über „Sprache / Language“, inklusive lokalisierten Zahlen, Beschriftungen und Hilfetexten
 - kompakte Ergebnisübersicht mit aufklappbaren Pixel-/Optikwerten, erweiterten Sensoreinstellungen und Erläuterungen; geöffnete Ergebnisdetails bleiben beim Ändern der Eingaben geöffnet
 
 Die veröffentlichte Website wird per GitHub Actions direkt aus `docs/` auf GitHub Pages bereitgestellt.
@@ -109,6 +110,7 @@ Abgleich mit Primärquellen:
 Geprüft am 13.11.2026:
 
 - `node --check docs/app.js`
+- `node --check docs/i18n.js` und `node --test tests/i18n.test.cjs`: Browser-Spracherkennung, manuelle Auswahl, gespeicherte Sprache, gesperrter Speicher und lokalisierte Zahlen/Übersetzungsparameter.
 - `node --test tests/geometry.test.cjs`: Herstellerreferenz, 720 Kombinationen aus Sensor, Entfernung, Zoom und Brennweite, gemeinsame Bodenebene, inverse Zugprojektion und feste Weltpositionen.
 - `node tests/browser-realism.cjs`: Browserprüfungen einschließlich aller Tier- und Hintergrundvarianten, Sensorvoreinstellungen, extremer Seitenverhältnisse, Silhouettenzuschnitt, identischem nativem Sensorbild bei Digitalzoom, Vorschaubrennweite, Verdeckung, NETD-Auswahl, ungültiger Eingaben und echtem Mausziehen.
 

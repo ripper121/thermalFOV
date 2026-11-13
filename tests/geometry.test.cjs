@@ -6,7 +6,8 @@ const path=require('node:path');
 
 const source=fs.readFileSync(path.join(__dirname,'../docs/app.js'),'utf8')
   .split("$('#animalCanvas').addEventListener('pointerdown'")[0];
-const context=vm.createContext({});
+const context=vm.createContext({navigator:{languages:['de-DE']}});
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../docs/i18n.js'),'utf8'),context);
 vm.runInContext(source,context);
 const run=code=>vm.runInContext(code,context);
 const close=(actual,expected)=>assert.ok(Math.abs(actual-expected)<1e-8,`${actual} != ${expected}`);

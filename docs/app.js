@@ -1,4 +1,5 @@
 const $ = (s) => document.querySelector(s);
+const t = (message,values) => globalThis.thermalI18n.t(message,values);
 const colors = ['#ff5b2e','#ffb020','#75b8ff','#71d6a6','#d18cff'];
 const sceneBackgrounds = {
   forest:{src:'assets/background-forest-white-hot.png',distance:500,treeHeight:18,treePixels:82,basePixelY:574},
@@ -6,10 +7,10 @@ const sceneBackgrounds = {
   none:{src:null}
 };
 const animals = [
-  {id:'boar',name:'Wildschwein',w:1.5,img:'assets/thermal-animal-wild-boar.png'},
-  {id:'deer',name:'Rothirsch',w:2.1,img:'assets/thermal-animal-red-deer.png'},
-  {id:'roe',name:'Rehwild',w:1.2,img:'assets/thermal-animal-roe-deer.png'},
-  {id:'fox',name:'Rotfuchs',w:.9,img:'assets/thermal-animal-red-fox.png'}
+  {id:'boar',get name(){return t('Wildschwein')},w:1.5,img:'assets/thermal-animal-wild-boar.png'},
+  {id:'deer',get name(){return t('Rothirsch')},w:2.1,img:'assets/thermal-animal-red-deer.png'},
+  {id:'roe',get name(){return t('Rehwild')},w:1.2,img:'assets/thermal-animal-roe-deer.png'},
+  {id:'fox',get name(){return t('Rotfuchs')},w:.9,img:'assets/thermal-animal-red-fox.png'}
 ];
 const treeSprites = {
   conifer:'assets/thermal-tree-conifer.png',
@@ -33,7 +34,7 @@ const spriteBounds = {
   'assets/thermal-field-beet.png':[19,24,1798,833],
   'assets/thermal-field-rapeseed.png':[31,19,1737,868]
 };
-const humanPerception = {name:'Zentraler Sehausschnitt',ha:39.6,va:27};
+const humanPerception = {get name(){return t('Zentraler Sehausschnitt')},ha:39.6,va:27};
 const observerHeight = 1.6;
 function fixedUnit(index,salt){const value=Math.sin((index+1)*12.9898+salt*78.233)*43758.5453;return value-Math.floor(value)}
 // Stable world coordinates: irregular stands across the view, crops across the field.
@@ -91,13 +92,13 @@ function vegetationRaster(sprite){
 
 function lensRow(value,index){
   const row=document.createElement('div'); row.className='lens-row'; row.style.setProperty('--lens',colors[index%colors.length]);
-  row.innerHTML=`<span class="dot"></span><input aria-label="Brennweite ${index+1}" type="number" min="1" max="300" step="any" value="${value}"><button aria-label="Brennweite entfernen" type="button">×</button>`;
+  row.innerHTML=`<span class="dot"></span><input aria-label="${t('Brennweite {n}',{n:index+1})}" type="number" min="1" max="300" step="any" value="${value}"><button aria-label="${t('Brennweite entfernen')}" type="button">×</button>`;
   row.querySelector('input').addEventListener('input',e=>{lenses[index]=e.target.valueAsNumber;render()});
   row.querySelector('button').addEventListener('click',()=>{if(lenses.length>1){lenses.splice(index,1);renderLensList();render()}});
   return row;
 }
 function renderLensList(){const list=$('#lensList');list.innerHTML='';lenses.forEach((l,i)=>list.append(lensRow(l,i)))}
-function renderAnimals(){const picker=$('#animalPicker');picker.innerHTML='';animals.forEach(a=>{const b=document.createElement('button');b.type='button';b.className='animal-card'+(a.id===selectedAnimal.id?' active':'');b.innerHTML=`<img src="${a.img}" alt="${a.name}"><span class="animal-info"><strong>${a.name}</strong><small>${a.size}</small></span>`;b.addEventListener('click',()=>{selectedAnimal=a;renderAnimals();render()});picker.append(b)})}
+function renderAnimals(){const picker=$('#animalPicker');picker.innerHTML='';animals.forEach(a=>{const b=document.createElement('button');b.type='button';b.className='animal-card'+(a.id===selectedAnimal.id?' active':'');b.dataset.activeLabel=t('AKTIV');b.innerHTML=`<img src="${a.img}" alt="${a.name}"><span class="animal-info"><strong>${a.name}</strong><small>${a.size}</small></span>`;b.addEventListener('click',()=>{selectedAnimal=a;renderAnimals();render()});picker.append(b)})}
 function loadRaster(src){
   if(!src)return Promise.resolve(null);
   if(!rasterCache.has(src))rasterCache.set(src,new Promise((resolve,reject)=>{
@@ -108,8 +109,8 @@ function loadRaster(src){
       const cropped=document.createElement('canvas');cropped.width=width;cropped.height=height;
       cropped.getContext('2d').drawImage(img,left,top,cropped.width,cropped.height,0,0,cropped.width,cropped.height);
       resolve(cropped);
-    }catch(error){reject(new Error(`Grafik nicht lesbar: ${src}. ${error.message}`))}};
-    img.onerror=()=>reject(new Error(`Grafik konnte nicht geladen werden: ${src}`));img.src=src;
+    }catch(error){reject(new Error(t('Grafik nicht lesbar: {src}. {error}',{src,error:error.message})))}};
+    img.onerror=()=>reject(new Error(t('Grafik konnte nicht geladen werden: {src}',{src})));img.src=src;
   }));
   return rasterCache.get(src);
 }
@@ -172,7 +173,7 @@ function resetSceneCounts(){
   updateSceneControls();
 }
 function perceptionFrame(v,cameraOuter){
-  if(!$('#perceptionEnabled').checked)return {name:'Kamerasichtfeld · Tier zentriert',ha:cameraOuter.hdeg,va:cameraOuter.vdeg,w:cameraOuter.w,h:cameraOuter.h,isPerception:false,aimX:animalWorldX/v.d,aimY:(observerHeight-selectedAnimal.h/2)/v.d};
+  if(!$('#perceptionEnabled').checked)return {name:t('Kamerasichtfeld · Tier zentriert'),ha:cameraOuter.hdeg,va:cameraOuter.vdeg,w:cameraOuter.w,h:cameraOuter.h,isPerception:false,aimX:animalWorldX/v.d,aimY:(observerHeight-selectedAnimal.h/2)/v.d};
   const mode=humanPerception;
   return {...mode,w:2*v.d*Math.tan(mode.ha*Math.PI/360),h:2*v.d*Math.tan(mode.va*Math.PI/360),isPerception:true};
 }
@@ -275,18 +276,19 @@ function values(){
   const inputs=[...document.querySelectorAll('.controls input[type="number"]')];
   const invalid=inputs.find(input=>!input.checkValidity()||!Number.isFinite(input.valueAsNumber));
   inputs.forEach(input=>input.setAttribute('aria-invalid',String(!input.checkValidity()||!Number.isFinite(input.valueAsNumber))));
-  $('#inputError').textContent=invalid?'Bitte alle Zahlenfelder ausfüllen und die angegebenen Eingabegrenzen beachten.':'';
+  $('#inputError').textContent=invalid?t('Bitte alle Zahlenfelder ausfüllen und die angegebenen Eingabegrenzen beachten.'):'';
   if(invalid?.closest('details'))invalid.closest('details').open=true;
   if(invalid)return null;
   const netdValue=$('#netd').value;
   return {rw:$('#resW').valueAsNumber,rh:$('#resH').valueAsNumber,pitch:$('#pitch').valueAsNumber,d:$('#distance').valueAsNumber,z:$('#digitalZoom').valueAsNumber,netd:netdValue==='off'?null:Number(netdValue)};
 }
 function calc(f,v){const sw=v.rw*v.pitch/1000,sh=v.rh*v.pitch/1000,sd=Math.hypot(sw,sh);const ha=2*Math.atan(sw/(2*f)),va=2*Math.atan(sh/(2*f)),da=2*Math.atan(sd/(2*f));const opticalW=2*v.d*Math.tan(ha/2),opticalH=2*v.d*Math.tan(va/2);const displayHa=2*Math.atan(Math.tan(ha/2)/v.z),displayVa=2*Math.atan(Math.tan(va/2)/v.z),displayDa=2*Math.atan(Math.tan(da/2)/v.z);return {f,sw,sh,ha,va,da,opticalW,opticalH,w:opticalW/v.z,h:opticalH/v.z,hdeg:displayHa*180/Math.PI,vdeg:displayVa*180/Math.PI,ddeg:displayDa*180/Math.PI,ifov:v.pitch/1000/f*1000}}
-function fmt(n,d=1){return n.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmt(n,d=1){return n.toLocaleString(globalThis.thermalI18n.locale,{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtFocal(n){return n.toLocaleString(globalThis.thermalI18n.locale,{maximumFractionDigits:10,useGrouping:false})}
 function fmtLength(n){return fmt(n,n<.01?5:n<1?3:1)}
 function fmtSpatial(n){return fmt(n,n<.001?6:n<.01?5:3)}
 function fmtPerception(n){return fmt(n,n<.01?5:n<1?3:n<10?1:0)}
-function fmtPx(n){return n<10?fmt(n,1):Math.round(n).toLocaleString('de-DE')}
+function fmtPx(n){return n<10?fmt(n,1):Math.round(n).toLocaleString(globalThis.thermalI18n.locale)}
 function renderDistanceScale(){
   const scale=$('#distanceScale');
   scale.innerHTML=Array.from({length:50},(_,i)=>{const m=10+i*10,pct=(m-10)/490*100,major=m===10||m%50===0;return `<span class="distance-tick${major?' major':''}" style="left:${pct}%" title="${m} m">${major?`<b>${m}</b>`:''}</span>`}).join('');
@@ -295,19 +297,19 @@ function resultCard(c,i,v){
   const animalPxW=selectedAnimal.w/c.w*v.rw,animalPxH=selectedAnimal.h/c.h*v.rh;
   const nativePxW=selectedAnimal.w/c.opticalW*v.rw,nativePxH=selectedAnimal.h/c.opticalH*v.rh;
   return `<article class="result-card" style="--lens:${colors[i%colors.length]}">
-    <header><strong>${c.f} mm</strong><span>${fmt(v.z,1)}× Zoom</span></header>
+    <header><strong>${fmtFocal(c.f)} mm</strong><span>${fmt(v.z,1)}× Zoom</span></header>
     <div class="metrics primary-metrics">
-      <div class="metric"><span>Sichtfeldbreite</span><b>${fmtLength(c.w)} m</b></div>
-      <div class="metric"><span>Sichtfeldhöhe</span><b>${fmtLength(c.h)} m</b></div>
+      <div class="metric"><span>${t('Sichtfeldbreite')}</span><b>${fmtLength(c.w)} m</b></div>
+      <div class="metric"><span>${t('Sichtfeldhöhe')}</span><b>${fmtLength(c.h)} m</b></div>
     </div>
     <details class="foldout metric-details" data-result-index="${i}"${expandedResults.has(i)?' open':''}>
-      <summary>Pixel &amp; Optik</summary>
+      <summary>${t('Pixel & Optik')}</summary>
       <div class="metrics">
-        <div class="metric metric-wide"><span>Bildwinkel H / V / D</span><b>${fmt(c.hdeg)}° / ${fmt(c.vdeg)}° / ${fmt(c.ddeg)}°</b></div>
-        <div class="metric"><span>Anzeige m / px</span><b>${fmtSpatial(c.w/v.rw)}</b></div>
-        <div class="metric"><span>Nativ m / px</span><b>${fmtSpatial(c.opticalW/v.rw)}</b></div>
+        <div class="metric metric-wide"><span>${t('Bildwinkel H / V / D')}</span><b>${fmt(c.hdeg)}° / ${fmt(c.vdeg)}° / ${fmt(c.ddeg)}°</b></div>
+        <div class="metric"><span>${t('Anzeige m / px')}</span><b>${fmtSpatial(c.w/v.rw)}</b></div>
+        <div class="metric"><span>${t('Nativ m / px')}</span><b>${fmtSpatial(c.opticalW/v.rw)}</b></div>
         <div class="metric"><span>IFOV</span><b>${fmt(c.ifov,c.ifov<.1?3:2)} mrad</b></div>
-        <div class="metric animal-pixels"><span>${selectedAnimal.name} im Bild</span><b>${fmtPx(animalPxW)} × ${fmtPx(animalPxH)} px</b><small>Nativ erfasst: ${fmtPx(nativePxW)} × ${fmtPx(nativePxH)} Sensorpixel</small></div>
+        <div class="metric animal-pixels"><span>${t('{animal} im Bild',{animal:selectedAnimal.name})}</span><b>${fmtPx(animalPxW)} × ${fmtPx(animalPxH)} px</b><small>${t('Nativ erfasst: {w} × {h} Sensorpixel',{w:fmtPx(nativePxW),h:fmtPx(nativePxH)})}</small></div>
       </div>
     </details>
   </article>`;
@@ -329,17 +331,17 @@ function render(){
   viewport.style.setProperty('--sensor-ratio',ratio);
   viewport.style.setProperty('--grid-x','6.25%');
   viewport.style.setProperty('--grid-y',`${100/gridRows}%`);
-  const netdText=v.netd===null?'NETD Aus':`${v.netd} mK`;
-  $('#distanceLabel').textContent=v.d;$('#chipDistance').textContent=`${v.d} m`;$('#resolutionLabel').textContent=`${v.rw} × ${v.rh} px`;$('#zoomLabel').textContent=`${fmt(v.z,1)}×`;$('#zoomChip').textContent=`White Hot · ${fmt(v.z,1)}× · ${netdText}`;$('#netdLabel').textContent=v.netd===null?'Aus':`${v.netd} mK`;$('#sensorSize').textContent=`${fmt(cameraOuter.sw,2)} × ${fmt(cameraOuter.sh,2)} mm`;
-  $('#perceptionName').textContent=perceptionEnabled?`${frame.name} (${fmt(frame.ha)}° × ${fmt(frame.va)}°)`:`Aus · ${frame.name} (${fmt(frame.ha)}° × ${fmt(frame.va)}°)`;$('#perceptionSize').textContent=`${fmtPerception(frame.w)} × ${fmtPerception(frame.h)} m`;
-  $('#perceptionToggleLabel').textContent=perceptionEnabled?'Ein':'Aus';$('.perception-control').classList.toggle('is-off',!perceptionEnabled);
-  $('#cameraAimLabel').textContent=perceptionEnabled?'Kamera waagerecht':'Bildausschnitt folgt dem Tier';
-  $('.drag-hint').textContent=perceptionEnabled?'Tier ziehen · Höhe ändert Entfernung':'Tier ziehen · Bildausschnitt folgt';
+  const netdText=v.netd===null?t('NETD Aus'):`${v.netd} mK`;
+  $('#distanceLabel').textContent=v.d;$('#chipDistance').textContent=`${v.d} m`;$('#resolutionLabel').textContent=`${v.rw} × ${v.rh} px`;$('#zoomLabel').textContent=`${fmt(v.z,1)}×`;$('#zoomChip').textContent=`White Hot · ${fmt(v.z,1)}× · ${netdText}`;$('#netdLabel').textContent=v.netd===null?t('Aus'):`${v.netd} mK`;$('#sensorSize').textContent=`${fmt(cameraOuter.sw,2)} × ${fmt(cameraOuter.sh,2)} mm`;
+  $('#perceptionName').textContent=perceptionEnabled?`${frame.name} (${fmt(frame.ha)}° × ${fmt(frame.va)}°)`:`${t('Aus')} · ${frame.name} (${fmt(frame.ha)}° × ${fmt(frame.va)}°)`;$('#perceptionSize').textContent=`${fmtPerception(frame.w)} × ${fmtPerception(frame.h)} m`;
+  $('#perceptionToggleLabel').textContent=perceptionEnabled?t('Ein'):t('Aus');$('.perception-control').classList.toggle('is-off',!perceptionEnabled);
+  $('#cameraAimLabel').textContent=perceptionEnabled?t('Kamera waagerecht'):t('Bildausschnitt folgt dem Tier');
+  $('.drag-hint').textContent=perceptionEnabled?t('Tier ziehen · Höhe ändert Entfernung'):t('Tier ziehen · Bildausschnitt folgt');
   const layers=$('#fovLayers');layers.innerHTML='';
-  cs.slice().sort((a,b)=>b.w-a.w).forEach(c=>{const el=document.createElement('div'),i=cs.indexOf(c);el.className='fov-layer';el.style.setProperty('--lens',colors[i%colors.length]);el.style.width=`${(c.w/frame.w)*100}%`;el.style.height=`${(c.h/frame.h)*100}%`;el.dataset.label=`${c.f} mm${i===previewIndex?' (Vorschau)':''} · ${fmtLength(c.w)} × ${fmtLength(c.h)} m · ${fmt(v.z,1)}×`;layers.append(el)});
+  cs.slice().sort((a,b)=>b.w-a.w).forEach(c=>{const el=document.createElement('div'),i=cs.indexOf(c);el.className='fov-layer';el.style.setProperty('--lens',colors[i%colors.length]);el.style.width=`${(c.w/frame.w)*100}%`;el.style.height=`${(c.h/frame.h)*100}%`;el.dataset.label=`${fmtFocal(c.f)} mm${i===previewIndex?t(' (Vorschau)'):''} · ${fmtLength(c.w)} × ${fmtLength(c.h)} m · ${fmt(v.z,1)}×`;layers.append(el)});
   $('#axisX').textContent=`↔ ${fmtPerception(frame.w)} m`;$('#axisY').textContent=`↕ ${fmtPerception(frame.h)} m`;
-  const sceneLabel=selectedScene==='forest'?`Wald mit ${forestTreeCount()} zusätzlichen Bäumen`:selectedScene==='field'?`Feld mit ${fieldPlantCount()} zusätzlichen Pflanzen`:'schwarzem Hintergrund';
-  const av=$('#animalVisual');av.title=`${selectedAnimal.name}: ${selectedAnimal.size}. Ziehen zum Verschieben und Ändern der Entfernung.`;$('#animalCanvas').setAttribute('aria-label',`${selectedAnimal.name} vor ${sceneLabel} im ${frame.name}, White Hot. Mit der Maus verschiebbar; die Höhe bestimmt die Entfernung.`);drawPixelScene(v,frame,previewCamera).catch(error=>{$('#inputError').textContent=error.message});
+  const sceneLabel=selectedScene==='forest'?t('Wald mit {n} zusätzlichen Bäumen',{n:forestTreeCount()}):selectedScene==='field'?t('Feld mit {n} zusätzlichen Pflanzen',{n:fieldPlantCount()}):t('schwarzem Hintergrund');
+  const av=$('#animalVisual');av.title=t('{animal}: {size}. Ziehen zum Verschieben und Ändern der Entfernung.',{animal:selectedAnimal.name,size:selectedAnimal.size});$('#animalCanvas').setAttribute('aria-label',t('{animal} vor {scene} im {frame}, White Hot. Mit der Maus verschiebbar; die Höhe bestimmt die Entfernung.',{animal:selectedAnimal.name,scene:sceneLabel,frame:frame.name}));drawPixelScene(v,frame,previewCamera).catch(error=>{$('#inputError').textContent=error.message});
   $('#results').innerHTML=cs.map((c,i)=>resultCard(c,i,v)).join('');
   const pct=(v.d-10)/490*100;$('#distance').style.background=`linear-gradient(90deg,var(--heat) ${pct}%,#343a45 ${pct}%)`;
 }
@@ -408,14 +410,24 @@ document.querySelectorAll('[data-lens]').forEach(b=>b.addEventListener('click',(
 document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>{selectedScene=b.dataset.scene;document.querySelectorAll('[data-scene]').forEach(x=>x.classList.toggle('active',x===b));updateSceneControls();render()}));
 try{const storedPerception=localStorage.getItem('thermalFovPerceptionEnabled');if(storedPerception!==null)$('#perceptionEnabled').checked=storedPerception==='true'}catch{}
 try{const storedNetd=localStorage.getItem('thermalFovNetd');if(['off','15','18','20','25','30','35','40','50'].includes(storedNetd))$('#netd').value=storedNetd}catch{}
+document.addEventListener('thermal-language-change',()=>{
+  if(!assetsReady)return;
+  animals.forEach(animal=>{animal.size=`${fmt(animal.w,2)} × ${fmt(animal.h,2)} m`});
+  // Keep the current lens input nodes, including partially edited values.
+  document.querySelectorAll('#lensList .lens-row').forEach((row,index)=>{
+    row.querySelector('input').setAttribute('aria-label',t('Brennweite {n}',{n:index+1}));
+    row.querySelector('button').setAttribute('aria-label',t('Brennweite entfernen'));
+  });
+  renderAnimals();render();
+});
 async function initialize(){
   // Overall height includes head, ears and antlers. Keep the original silhouette
   // proportions instead of squeezing it into a box with a shoulder-height label.
   await Promise.all(animals.map(async animal=>{
     const sprite=await loadRaster(animal.img);
     animal.h=animal.w*sprite.height/sprite.width;
-    animal.size=`${fmt(animal.w,2)} × ${fmt(animal.h,2)} m`;
   }));
+  animals.forEach(animal=>{animal.size=`${fmt(animal.w,2)} × ${fmt(animal.h,2)} m`});
   assetsReady=true;
   resetSceneCounts();renderDistanceScale();renderLensList();renderAnimals();render();
 }
