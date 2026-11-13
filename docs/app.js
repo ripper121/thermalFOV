@@ -32,6 +32,10 @@ function values(){return {rw:clamp(+$('#resW').value||640,1,10000),rh:clamp(+$('
 function calc(f,v){const sw=v.rw*v.pitch/1000,sh=v.rh*v.pitch/1000,sd=Math.hypot(sw,sh);const ha=2*Math.atan(sw/(2*f)),va=2*Math.atan(sh/(2*f)),da=2*Math.atan(sd/(2*f));const opticalW=2*v.d*Math.tan(ha/2),opticalH=2*v.d*Math.tan(va/2);const displayHa=2*Math.atan(Math.tan(ha/2)/v.z),displayVa=2*Math.atan(Math.tan(va/2)/v.z),displayDa=2*Math.atan(Math.tan(da/2)/v.z);return {f,sw,sh,ha,va,da,opticalW,opticalH,w:opticalW/v.z,h:opticalH/v.z,hdeg:displayHa*180/Math.PI,vdeg:displayVa*180/Math.PI,ddeg:displayDa*180/Math.PI,ifov:v.pitch/1000/f*1000}}
 function fmt(n,d=1){return n.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmtPx(n){return n<10?fmt(n,1):Math.round(n).toLocaleString('de-DE')}
+function renderDistanceScale(){
+  const scale=$('#distanceScale');
+  scale.innerHTML=Array.from({length:50},(_,i)=>{const m=10+i*10,pct=(m-10)/490*100,major=m===10||m%50===0;return `<span class="distance-tick${major?' major':''}" style="left:${pct}%" title="${m} m">${major?`<b>${m}</b>`:''}</span>`}).join('');
+}
 function render(){
   const v=values(),cs=lenses.map(f=>calc(f,v)),outer=cs.reduce((a,b)=>a.w>b.w?a:b);
   const viewport=$('#viewport'),ratio=v.rw/v.rh,gridRows=16/ratio;
@@ -53,4 +57,4 @@ $('#distance').addEventListener('input',render);
 $('#digitalZoom').addEventListener('input',render);
 $('#addLens').addEventListener('click',()=>{lenses.push(lenses[lenses.length-1]+10);renderLensList();render()});
 document.querySelectorAll('[data-lens]').forEach(b=>b.addEventListener('click',()=>{const n=+b.dataset.lens;if(!lenses.includes(n)){lenses.push(n);renderLensList();render()}}));
-renderLensList();renderAnimals();render();
+renderDistanceScale();renderLensList();renderAnimals();render();
