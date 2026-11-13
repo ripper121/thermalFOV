@@ -1,10 +1,10 @@
 const $ = (s) => document.querySelector(s);
 const colors = ['#ff5b2e','#ffb020','#75b8ff','#71d6a6','#d18cff'];
 const animals = [
-  {id:'boar',name:'Wildschwein',size:'1,50 × 0,85 m',w:1.5,h:.85,img:'assets/wild-boar.jpg'},
-  {id:'deer',name:'Rothirsch',size:'2,10 × 1,40 m',w:2.1,h:1.4,img:'assets/red-deer.jpg'},
-  {id:'roe',name:'Rehwild',size:'1,20 × 0,75 m',w:1.2,h:.75,img:'assets/roe-deer.jpg'},
-  {id:'fox',name:'Rotfuchs',size:'0,90 × 0,40 m',w:.9,h:.4,img:'assets/red-fox.jpg'}
+  {id:'boar',name:'Wildschwein',size:'1,50 × 0,85 m',w:1.5,h:.85,img:'assets/pictogram-wild-boar.png'},
+  {id:'deer',name:'Rothirsch',size:'2,10 × 1,40 m',w:2.1,h:1.4,img:'assets/pictogram-red-deer.png'},
+  {id:'roe',name:'Rehwild',size:'1,20 × 0,75 m',w:1.2,h:.75,img:'assets/pictogram-roe-deer.png'},
+  {id:'fox',name:'Rotfuchs',size:'0,90 × 0,40 m',w:.9,h:.4,img:'assets/pictogram-red-fox.png'}
 ];
 let lenses = [35,50];
 let selectedAnimal = animals[0];
