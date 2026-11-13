@@ -37,7 +37,12 @@ async function drawPixelScene(v,outer){
   canvas.width=Math.round(v.rw);canvas.height=Math.round(v.rh);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.imageSmoothingEnabled=false;
   const [animalImg,bgImg]=await Promise.all([loadRaster(animal.img),loadRaster(bgSrc)]);if(version!==drawVersion)return;
   if(bgImg){const referenceHalfTan=7.68/(2*35),currentHalfTan=outer.w/(2*v.d),crop=clamp(referenceHalfTan/currentHalfTan,1,10),focusPx=bgImg.height*scene.focusY,verticalCover=Math.max(canvas.height*.5/focusPx,canvas.height*.5/(bgImg.height-focusPx)),scale=Math.max(Math.max(canvas.width/bgImg.width,canvas.height/bgImg.height)*crop,verticalCover),w=bgImg.width*scale,h=bgImg.height*scale,x=(canvas.width-w)/2,y=canvas.height*.5-focusPx*scale;ctx.drawImage(bgImg,x,y,w,h);ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(0,0,canvas.width,canvas.height)}
-  const w=Math.max(1,animal.w/outer.w*canvas.width),h=Math.max(1,animal.h/outer.h*canvas.height),mask=document.createElement('canvas');mask.width=Math.max(1,Math.ceil(w));mask.height=Math.max(1,Math.ceil(h));const maskCtx=mask.getContext('2d');maskCtx.imageSmoothingEnabled=false;maskCtx.drawImage(animalImg,0,0,mask.width,mask.height);maskCtx.globalCompositeOperation='source-in';maskCtx.fillStyle='#fff';maskCtx.fillRect(0,0,mask.width,mask.height);ctx.imageSmoothingEnabled=false;ctx.drawImage(mask,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
+  const w=Math.max(1,animal.w/outer.w*canvas.width),h=Math.max(1,animal.h/outer.h*canvas.height),mask=document.createElement('canvas');
+  mask.width=Math.max(1,Math.round(w));mask.height=Math.max(1,Math.round(h));
+  const maskCtx=mask.getContext('2d');maskCtx.imageSmoothingEnabled=true;maskCtx.imageSmoothingQuality='high';maskCtx.drawImage(animalImg,0,0,mask.width,mask.height);
+  const pixels=maskCtx.getImageData(0,0,mask.width,mask.height),data=pixels.data;
+  for(let i=0;i<data.length;i+=4){const visible=data[i+3]>=96;data[i]=255;data[i+1]=255;data[i+2]=255;data[i+3]=visible?255:0}
+  maskCtx.putImageData(pixels,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(mask,(canvas.width-mask.width)/2,(canvas.height-mask.height)/2);
 }
 function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
 function values(){return {rw:clamp(+$('#resW').value||640,1,10000),rh:clamp(+$('#resH').value||512,1,10000),pitch:clamp(+$('#pitch').value||12,.1,100),d:+$('#distance').value,z:+$('#digitalZoom').value}}
