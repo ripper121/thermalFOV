@@ -16,7 +16,7 @@ Interaktiver, statischer FOV-Rechner für Wärmebildkameras. Die Website berechn
 - Baum- und Bewuchsdichte von 0–100 % in 10er-Schritten; feste Baumgruppen mit Jungwuchs und natürlichen Lücken, auch im Bildzentrum, sowie bis zu 3000 flächig verteilte Pflanzenbüschel in zusammenhängenden Rüben-/Rapsbereichen, mit Büschen am Feldrand
 - Bewuchs von 10–500 m mit unveränderlichen Weltpositionen; höhere Dichte ergänzt die bestehende Anordnung; nahe Vegetation kann das Tier verdecken
 - optional zuschaltbarer Vergleichsausschnitt von 39,6° horizontal × 27,0° vertikal; ausgeschaltet wird das größte Kamerasichtfeld verwendet
-- gemeinsame Bodenperspektive mit 1,60 m Beobachterhöhe und waagerechter Kamera
+- gemeinsame Bodenperspektive mit 1,60 m Beobachterhöhe; bei eingeschaltetem Vergleichsausschnitt waagerechte Kamera, ansonsten folgt der Bildausschnitt dem Tier und hält es horizontal und vertikal zentriert
 - auswählbare Vorschaubrennweite; Tier, Bewuchs und Rauschvorschau teilen ein natives Sensorpixelraster
 - responsive Darstellung für Desktop und Mobilgeräte
 
@@ -46,7 +46,12 @@ Boden wird eine Höhe `H` in der Tiefe `D` auf die normierte Bildhöhe
 Damit liegen sämtliche Objektfüße in gleicher Tiefe auf derselben Bodenlinie.
 Entfernungen bezeichnen die Tiefe entlang der optischen Achse, keine schrägen
 Laserentfernungen. Die Achsenmaße gelten in der Ebene der gewählten Tierentfernung.
-Bei starkem Zoom können bodennahe Ziele aus dem waagerechten Bildausschnitt fallen.
+Ohne festen Vergleichsausschnitt wird der gesamte Bildausschnitt auf den Mittelpunkt
+der Tiersilhouette nachgeführt. Tier, Vegetation, Hintergrund und Bodenlinien teilen
+diese Verschiebung; Maßstab und native Pixelzahl bleiben erhalten. Die Nachführung
+verschiebt das Projektionsfenster, sie simuliert keine zusätzliche 3D-Kamerarotation.
+Bei eingeschaltetem Vergleichsausschnitt bleibt die Kamera waagerecht; dort können
+bodennahe Ziele bei starkem Zoom aus dem Bild fallen.
 Die horizontalen Bodenlinien markieren 10, 20, 50, 100, 200, 500 und 1000 m.
 
 Transparente Ränder werden aus allen Sprites entfernt. Tierbreiten beziehen sich

@@ -136,7 +136,7 @@ function applyNetdNoise(ctx,v){
 function drawTree(ctx,tree,v,frame,index,sprite){
   sprite=vegetationRaster(sprite);
   const fieldW=frame.w*tree.d/v.d,fieldH=frame.h*tree.d/v.d,canvas=ctx.canvas;
-  const w=tree.w/fieldW*canvas.width,h=tree.h/fieldH*canvas.height,x=sceneObjectX(tree,fieldW)*canvas.width;
+  const w=tree.w/fieldW*canvas.width,h=tree.h/fieldH*canvas.height,x=sceneObjectX(tree,fieldW,v,frame)*canvas.width;
   const baseY=groundY(tree.d,v,frame)*canvas.height;
   if(x+w/2<0||x-w/2>canvas.width||baseY-h>canvas.height||baseY<0)return;
   ctx.save();
@@ -149,7 +149,7 @@ function drawTree(ctx,tree,v,frame,index,sprite){
 function drawFieldPlant(ctx,plant,v,frame,index,sprite){
   sprite=vegetationRaster(sprite);
   const fieldW=frame.w*plant.d/v.d,fieldH=frame.h*plant.d/v.d,canvas=ctx.canvas;
-  const w=plant.w/fieldW*canvas.width,h=plant.h/fieldH*canvas.height,x=sceneObjectX(plant,fieldW)*canvas.width;
+  const w=plant.w/fieldW*canvas.width,h=plant.h/fieldH*canvas.height,x=sceneObjectX(plant,fieldW,v,frame)*canvas.width;
   const baseY=groundY(plant.d,v,frame)*canvas.height;
   if(x+w/2<0||x-w/2>canvas.width||baseY-h>canvas.height||baseY<0)return;
   ctx.save();ctx.globalAlpha=1;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
@@ -177,36 +177,39 @@ function restoreSceneCounts(){
   updateSceneControls();
 }
 function perceptionFrame(v,cameraOuter){
-  if(!$('#perceptionEnabled').checked)return {name:'Kamerasichtfeld',ha:cameraOuter.hdeg,va:cameraOuter.vdeg,w:cameraOuter.w,h:cameraOuter.h,isPerception:false};
+  if(!$('#perceptionEnabled').checked)return {name:'Kamerasichtfeld · Tier zentriert',ha:cameraOuter.hdeg,va:cameraOuter.vdeg,w:cameraOuter.w,h:cameraOuter.h,isPerception:false,aimX:animalWorldX/v.d,aimY:(observerHeight-selectedAnimal.h/2)/v.d};
   const mode=humanPerception;
   return {...mode,w:2*v.d*Math.tan(mode.ha*Math.PI/360),h:2*v.d*Math.tan(mode.va*Math.PI/360),isPerception:true};
 }
-// Horizontal optical axis, flat ground; distance is depth along that axis.
-function groundY(distance,v,frame){return .5+observerHeight/(frame.h*distance/v.d)}
-function animalGroundY(distance,v,frame){return .5+(observerHeight-selectedAnimal.h/2)/(frame.h*distance/v.d)}
+// Flat-ground projection with an optional tracked image-window centre.
+function groundY(distance,v,frame){return .5+(observerHeight/distance-(frame.aimY||0))/(frame.h/v.d)}
+function animalGroundY(distance,v,frame){return .5+((observerHeight-selectedAnimal.h/2)/distance-(frame.aimY||0))/(frame.h/v.d)}
+function animalScreenX(v,frame){return .5+(animalWorldX/v.d-(frame.aimX||0))/(frame.w/v.d)}
 function distanceAtGroundY(y,v,frame){
-  return clamp((observerHeight-selectedAnimal.h/2)/(Math.max(.000001,y-.5)*(frame.h/v.d)),10,500);
+  return clamp((observerHeight-selectedAnimal.h/2)/Math.max(.000001,(y-.5)*(frame.h/v.d)+(frame.aimY||0)),10,500);
 }
-function sceneObjectX(item,fieldW){
+function sceneObjectX(item,fieldW,v,frame){
   const worldX=item.worldX??(item.x-.5)*2*item.d*Math.tan(humanPerception.ha*Math.PI/360);
-  return .5+worldX/fieldW;
+  return .5+worldX/fieldW-(frame?.aimX||0)/(frame?frame.w/v.d:1);
 }
 function drawGround(ctx,v,frame,background){
   const {width,height}=ctx.canvas;
   ctx.fillStyle='#080808';ctx.fillRect(0,0,width,height);
   if(selectedScene==='none')return;
-  const sky=ctx.createLinearGradient(0,0,0,height/2);sky.addColorStop(0,'#121212');sky.addColorStop(1,'#292929');
-  ctx.fillStyle=sky;ctx.fillRect(0,0,width,height/2);
-  const ground=ctx.createLinearGradient(0,height/2,0,height);ground.addColorStop(0,'#353535');ground.addColorStop(1,'#505050');
-  ctx.fillStyle=ground;ctx.fillRect(0,height/2,width,height/2);
+  const horizon=(.5-(frame.aimY||0)/(frame.h/v.d))*height,split=clamp(horizon,0,height);
+  const sky=ctx.createLinearGradient(0,0,0,Math.max(1,split));sky.addColorStop(0,'#121212');sky.addColorStop(1,'#292929');
+  ctx.fillStyle=sky;ctx.fillRect(0,0,width,split);
+  const ground=ctx.createLinearGradient(0,split,0,Math.max(split+1,height));ground.addColorStop(0,'#353535');ground.addColorStop(1,'#505050');
+  ctx.fillStyle=ground;ctx.fillRect(0,split,width,height-split);
   if(background){
     // Decorative scenery; align its meadow transition with the ground horizon.
     const focus=background.height*sceneBackgrounds[selectedScene].focusY;
     const angularScale=Math.tan(humanPerception.ha*Math.PI/360)/(frame.w/(2*v.d));
-    const scale=Math.max(width/background.width*angularScale,width/background.width,height/2/focus,height/2/(background.height-focus));
+    const shiftX=(frame.aimX||0)/(frame.w/v.d)*width;
+    const scale=Math.max(width/background.width*angularScale,(width+2*Math.abs(shiftX))/background.width,Math.max(0,horizon)/focus,Math.max(0,height-horizon)/(background.height-focus));
     const imageW=background.width*scale,imageH=background.height*scale;
     ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-    ctx.drawImage(background,(width-imageW)/2,height/2-focus*scale,imageW,imageH);
+    ctx.drawImage(background,(width-imageW)/2-shiftX,horizon-focus*scale,imageW,imageH);
     ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(0,0,width,height);
   }
   // Ground lines share the exact same projection as the feet of every object.
@@ -236,7 +239,7 @@ async function drawPixelScene(v,frame,cameraOuter){
     };
     drawVegetation(item=>item.d>=v.d);
     const w=animal.w/sceneFrame.w*ctx.canvas.width,h=animal.h/sceneFrame.h*ctx.canvas.height;
-    const centerX=(.5+animalWorldX/sceneFrame.w)*ctx.canvas.width,centerY=animalGroundY(v.d,v,sceneFrame)*ctx.canvas.height;
+    const centerX=animalScreenX(v,sceneFrame)*ctx.canvas.width,centerY=animalGroundY(v.d,v,sceneFrame)*ctx.canvas.height;
     ctx.drawImage(animalImg,centerX-w/2,centerY-h/2,w,h);
     drawVegetation(item=>item.d<v.d);
   };
@@ -244,7 +247,7 @@ async function drawPixelScene(v,frame,cameraOuter){
   drawScene(displayCtx,frame);
   const sensor=document.createElement('canvas');sensor.width=v.rw;sensor.height=v.rh;
   const sensorCtx=sensor.getContext('2d');
-  drawScene(sensorCtx,{w:cameraOuter.opticalW,h:cameraOuter.opticalH});
+  drawScene(sensorCtx,{w:cameraOuter.opticalW,h:cameraOuter.opticalH,aimX:frame.aimX,aimY:frame.aimY});
   applyNetdNoise(sensorCtx,v);
   const opticalW=cameraOuter.opticalW/frame.w*canvas.width,opticalH=cameraOuter.opticalH/frame.h*canvas.height;
   const displayW=cameraOuter.w/frame.w*canvas.width,displayH=cameraOuter.h/frame.h*canvas.height;
@@ -253,7 +256,7 @@ async function drawPixelScene(v,frame,cameraOuter){
   displayCtx.drawImage(sensor,(canvas.width-opticalW)/2,(canvas.height-opticalH)/2,opticalW,opticalH);
   displayCtx.restore();
   const w=animal.w/frame.w*canvas.width,h=animal.h/frame.h*canvas.height;
-  const centerX=(.5+animalWorldX/frame.w)*canvas.width,centerY=animalGroundY(v.d,v,frame)*canvas.height,left=centerX-w/2,top=centerY-h/2;
+  const centerX=animalScreenX(v,frame)*canvas.width,centerY=animalGroundY(v.d,v,frame)*canvas.height,left=centerX-w/2,top=centerY-h/2;
   animalBounds={left,top,right:left+w,bottom:top+h,centerX,centerY,w,h};
   canvas.dataset.animalX=(centerX/canvas.width).toFixed(4);canvas.dataset.animalY=(centerY/canvas.height).toFixed(4);canvas.dataset.animalDistance=String(v.d);
   canvas.dataset.previewLens=String(cameraOuter.f);
@@ -297,6 +300,8 @@ function render(){
   $('#distanceLabel').textContent=v.d;$('#chipDistance').textContent=`${v.d} m`;$('#resolutionLabel').textContent=`${v.rw} × ${v.rh} px`;$('#zoomLabel').textContent=`${fmt(v.z,1)}×`;$('#zoomChip').textContent=`White Hot · ${fmt(v.z,1)}× · ${netdText}`;$('#netdLabel').textContent=v.netd===null?'Aus':`${v.netd} mK`;$('#sensorSize').textContent=`${fmt(cameraOuter.sw,2)} × ${fmt(cameraOuter.sh,2)} mm`;
   $('#perceptionName').textContent=perceptionEnabled?`${frame.name} (${fmt(frame.ha)}° × ${fmt(frame.va)}°)`:`Aus · ${frame.name} (${fmt(frame.ha)}° × ${fmt(frame.va)}°)`;$('#perceptionSize').textContent=`${fmtPerception(frame.w)} × ${fmtPerception(frame.h)} m`;
   $('#perceptionToggleLabel').textContent=perceptionEnabled?'Ein':'Aus';$('.perception-control').classList.toggle('is-off',!perceptionEnabled);
+  $('#cameraAimLabel').textContent=perceptionEnabled?'Kamera waagerecht':'Bildausschnitt folgt dem Tier';
+  $('.drag-hint').textContent=perceptionEnabled?'Tier ziehen · Höhe ändert Entfernung':'Tier ziehen · Bildausschnitt folgt';
   const layers=$('#fovLayers');layers.innerHTML='';
   cs.slice().sort((a,b)=>b.w-a.w).forEach(c=>{const el=document.createElement('div'),i=cs.indexOf(c);el.className='fov-layer';el.style.setProperty('--lens',colors[i%colors.length]);el.style.width=`${(c.w/frame.w)*100}%`;el.style.height=`${(c.h/frame.h)*100}%`;el.dataset.label=`${c.f} mm${i===previewIndex?' (Vorschau)':''} · ${fmtLength(c.w)} × ${fmtLength(c.h)} m · ${fmt(v.z,1)}×`;layers.append(el)});
   $('#axisX').textContent=`↔ ${fmtPerception(frame.w)} m`;$('#axisY').textContent=`↕ ${fmtPerception(frame.h)} m`;
@@ -320,11 +325,12 @@ function applyAnimalDrag(){
   if(!animalDrag||!pendingDragPoint)return;
   const canvas=$('#animalCanvas'),point=pendingDragPoint;
   pendingDragPoint=null;
-  const v=values();if(!v)return;
-  const cameraOuter=lenses.map(f=>calc(f,v)).reduce((a,b)=>a.w>b.w?a:b),frame=perceptionFrame(v,cameraOuter);
+  if(!values())return;
+  // Keep gesture coordinates in the starting view while the displayed view follows.
+  const v=animalDrag.referenceValues,frame=animalDrag.referenceFrame;
   const centerY=clamp((point.y-animalDrag.offsetY)/canvas.height,animalGroundY(500,v,frame),animalGroundY(10,v,frame));
   const distance=clamp(Math.round(distanceAtGroundY(centerY,v,frame)/10)*10,10,500);
-  animalWorldX=(clamp((point.x-animalDrag.offsetX)/canvas.width,0,1)-.5)*frame.w*distance/v.d;
+  animalWorldX=((clamp((point.x-animalDrag.offsetX)/canvas.width,0,1)-.5)*frame.w/v.d+(frame.aimX||0))*distance;
   $('#distance').value=String(distance);
   render();
 }
@@ -339,7 +345,9 @@ function finishAnimalDrag(event){
 $('#animalCanvas').addEventListener('pointerdown',event=>{
   const point=canvasPoint(event);
   if(!pointHitsAnimal(point))return;
-  animalDrag={pointerId:event.pointerId,offsetX:point.x-animalBounds.centerX,offsetY:point.y-animalBounds.centerY};
+  const v=values();if(!v)return;
+  const outer=lenses.map(f=>calc(f,v)).reduce((a,b)=>a.w>b.w?a:b);
+  animalDrag={pointerId:event.pointerId,offsetX:point.x-animalBounds.centerX,offsetY:point.y-animalBounds.centerY,referenceValues:v,referenceFrame:perceptionFrame(v,outer)};
   pendingDragPoint=point;event.currentTarget.setPointerCapture(event.pointerId);$('#animalVisual').classList.add('dragging');event.preventDefault();
 });
 $('#animalCanvas').addEventListener('pointermove',event=>{

@@ -83,6 +83,10 @@ const fs=require('node:fs');
           $('#previewLens').value='1';render();await settle();
           const v=values(),outer=calc(35,v),frame=perceptionFrame(v,outer),canvas=$('#animalCanvas');
           check(close(animalBounds.bottom/canvas.height,groundY(100,v,frame)),animal.id+'/'+scene+'/'+perception+'/'+zoom+': shared ground plane');
+          if(!perception){
+            check(close(animalBounds.centerX/canvas.width,.5),'tracked horizontal centre');
+            check(close(animalBounds.centerY/canvas.height,.5),'tracked vertical centre');
+          }
           check(canvas.dataset.previewLens==='50','selected lens is rendered');
           check(close(animalBounds.w/canvas.width,animal.w/frame.w),'silhouette width matches metric scale');
           check(!$('#inputError').textContent,'no rendering error');
@@ -94,7 +98,8 @@ const fs=require('node:fs');
         $('#preset').value=option.value;$('#preset').dispatchEvent(new Event('change'));await settle();
         const v=values(),frame=calc(35,v),canvas=$('#animalCanvas');
         check(Math.abs(canvas.width/canvas.height-v.rw/v.rh)<.01,'canvas aspect '+option.value);
-        check(close(animalBounds.centerX/canvas.width,.5+2/frame.w),'world x survives preset change');
+        check(close(animalBounds.centerX/canvas.width,.5),'tracked x survives preset change');
+        check(animalWorldX===2,'tracking preserves world position');
       }
       $('#resW').value=80;$('#resH').value=2048;render();await settle();
       check(Math.abs($('#animalCanvas').width/$('#animalCanvas').height-80/2048)<.001,'extreme portrait sensor');
@@ -148,10 +153,18 @@ const fs=require('node:fs');
         $('#'+id).value=40;$('#'+id).dispatchEvent(new Event('input'));await settle();
       }
       check($('#distance').step==='10','distance slider uses ten metre steps');
+      $('#perceptionEnabled').checked=false;animalWorldX=-3;
+      for(const distance of [10,100,500])for(const zoom of [1,8])for(const preview of [0,1]){
+        $('#distance').value=distance;$('#digitalZoom').value=zoom;$('#previewLens').value=preview;
+        render();await settle();
+        check($('#animalCanvas').dataset.animalX==='0.5000'&&$('#animalCanvas').dataset.animalY==='0.5000','tracking '+distance+'/'+zoom+'/'+preview);
+      }
+      $('#perceptionEnabled').checked=true;$('#distance').value=100;$('#digitalZoom').value=1;$('#previewLens').value=0;animalWorldX=0;
       selectedScene='forest';render();await settle();
       return {checks:checks.length,animals:animals.map(a=>({name:a.name,size:a.size}))};
     })()`);
     // Real pointer events exercise capture, coordinate conversion and RAF updates.
+    const performDrag=async()=>{
     await evaluate(`document.documentElement.style.scrollBehavior='auto';$('#animalCanvas').scrollIntoView({block:'center',behavior:'instant'});new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));`);
     const drag=await evaluate(`(()=>{
       const v=values(),frame=perceptionFrame(v,calc(35,v)),canvas=$('#animalCanvas'),r=canvas.getBoundingClientRect();
@@ -165,6 +178,13 @@ const fs=require('node:fs');
     await send('Input.dispatchMouseEvent',{type:'mouseReleased',x:drag.targetX,y:drag.targetY,button:'left',clickCount:1});
     const dragged=await evaluate(`new Promise(resolve=>setTimeout(()=>resolve(Number($('#distance').value)),100))`);
     assert.ok(Math.abs(dragged-200)<=2,`drag distance: ${dragged}; ${JSON.stringify(drag)}; ${anchor}`);
+    return dragged;
+    };
+    const dragged=await performDrag();
+    await evaluate(`(async()=>{$('#perceptionEnabled').checked=false;$('#distance').value=100;animalWorldX=2;render();while($('#animalCanvas').dataset.drawVersion!==String(drawVersion))await new Promise(r=>setTimeout(r,10))})()`);
+    const trackedDragged=await performDrag();
+    const centred=await evaluate(`({x:$('#animalCanvas').dataset.animalX,y:$('#animalCanvas').dataset.animalY})`);
+    assert.deepEqual(centred,{x:'0.5000',y:'0.5000'});
     assert.deepEqual(errors,[]);
     await evaluate(`$('#distance').value=100;animalWorldX=0;render();`);
     if(process.env.AUDIT_SCREENSHOT){
@@ -180,6 +200,6 @@ const fs=require('node:fs');
     assert.ok(mobile.scrollWidth<=mobile.width+1,JSON.stringify(mobile));
     assert.ok(mobile.canvasWidth<=mobile.width&&mobile.aspectError<.01,JSON.stringify(mobile));
     await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
-    console.log(JSON.stringify({...result,pointerDragDistance:dragged,mobileWidth:mobile.width,runtimeErrors:errors.length},null,2));
+    console.log(JSON.stringify({...result,pointerDragDistance:dragged,trackedDragDistance:trackedDragged,mobileWidth:mobile.width,runtimeErrors:errors.length},null,2));
   }finally{ws.close()}
 })().catch(error=>{console.error(error);process.exitCode=1});

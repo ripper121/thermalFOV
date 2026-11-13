@@ -86,3 +86,26 @@ test('stored vegetation density migrates to valid steps of ten',()=>{
     context.density=input;assert.equal(run('snapTen(density)'),expected);
   }
 });
+
+test('camera view tracks the animal without changing scale or ground contact',()=>{
+  context.document={querySelector:()=>({checked:false})};
+  for(const height of [.5,.9,2.18])for(const d of [10,100,500])
+    for(const x of [-4,0,4])for(const z of [1,8]){
+      context.v={...base,d,z};context.height=height;context.x=x;
+      run('selectedAnimal.h=height;animalWorldX=x');
+      const c=run('calc(35,v)');context.c=c;
+      const frame=run('perceptionFrame(v,c)');context.frame=frame;
+      close(run('animalScreenX(v,frame)'),.5);close(run('animalGroundY(v.d,v,frame)'),.5);
+      close(frame.w,c.w);close(frame.h,c.h);
+      close(run('groundY(v.d,v,frame)'),.5+height/(2*frame.h));
+      for(const distance of [10,200,500]){
+        context.distance=distance;
+        context.y=run('animalGroundY(distance,v,frame)');
+        close(run('distanceAtGroundY(y,v,frame)'),distance);
+      }
+      context.item={worldX:x,d};
+      close(run('sceneObjectX(item,frame.w,v,frame)'),.5);
+    }
+  context.document={querySelector:()=>({checked:true})};
+  assert.equal(run('perceptionFrame(v,c).aimX'),undefined);
+});

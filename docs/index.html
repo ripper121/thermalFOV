@@ -145,7 +145,7 @@
         </div>
 
         <label class="preview-control" for="previewLens">Kameravorschau <select id="previewLens" aria-describedby="previewHelp"></select></label>
-        <p class="simulation-note" id="previewHelp">Der gewählte Kamerarahmen zeigt das Sensorbild. Außerhalb liegt die geometrische Umgebung. Beobachterhöhe: 1,60 m · Kamera waagerecht · ebener Boden.</p>
+        <p class="simulation-note" id="previewHelp">Der gewählte Kamerarahmen zeigt das Sensorbild. Außerhalb liegt die geometrische Umgebung. Beobachterhöhe: 1,60 m · <span id="cameraAimLabel">Kamera waagerecht</span> · ebener Boden.</p>
         <div class="viewport" id="viewport">
           <div class="scanlines"></div>
           <div id="fovLayers" class="fov-layers"></div>
@@ -165,7 +165,7 @@
 
         <div id="results" class="results"></div>
         <p class="simulation-note">Winkel und Sichtfeld gelten für den gewählten Digitalzoom. „Anzeige m / px“ bezieht sich auf das simulierte Ausgaberaster in Sensorauflösung, „Nativ m / px“ auf die Objektebene pro Sensorpixel. IFOV ≈ Pixelabstand / Brennweite bleibt beim Digitalzoom gleich. Tierpixel sind projizierte Gesamtmaße; am Bildrand wird das Tier beschnitten. Die NETD-Darstellung simuliert relatives Sensorrauschen, ist aber keine radiometrische Messung.</p>
-        <p class="simulation-note">Der Vergleichsausschnitt von 39,6° × 27,0° ist eine frei gewählte Referenz. Ausgeschaltet bildet das größte Kamerasichtfeld den äußeren Maßstab. Alle Objekte teilen dieselbe Bodenperspektive; die waagerechten Bodenlinien liegen bei 10, 20, 50, 100, 200, 500 und 1000 m. Starkes Zoomen kann bodennahe Ziele bei waagerechter Kamera aus dem Bild beschneiden. Tier und Vegetation im gewählten Kamerarahmen werden gemeinsam in Sensorauflösung gerastert; Digitalzoom vergrößert nur dieses Raster.</p>
+        <p class="simulation-note">Der Vergleichsausschnitt von 39,6° × 27,0° ist eine frei gewählte Referenz. Ausgeschaltet bildet das größte Kamerasichtfeld den äußeren Maßstab und der Bildausschnitt hält das Tier horizontal und vertikal in der Mitte. Die Umgebung folgt derselben Verschiebung. Alle Objekte teilen dieselbe Bodenperspektive; die waagerechten Bodenlinien liegen bei 10, 20, 50, 100, 200, 500 und 1000 m. Bei eingeschaltetem Vergleichsausschnitt bleibt die Kamera waagerecht. Tier und Vegetation im gewählten Kamerarahmen werden gemeinsam in Sensorauflösung gerastert; Digitalzoom vergrößert nur dieses Raster. Übergroße Tiere werden am Bildrand beschnitten.</p>
       </section>
     </section>
 
