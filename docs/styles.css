@@ -95,3 +95,62 @@ main{max-width:1440px;margin:auto;padding:58px max(22px,4vw) 70px}.intro{display
 #previewHelp{margin-bottom:14px}
 .intro>div{min-width:0}
 @media(max-width:600px){.intro h1{font-size:clamp(30px,8vw,44px);overflow-wrap:anywhere}}
+
+/* Keep the working view compact; explanations stay available on demand. */
+main{padding-top:40px;padding-bottom:44px}
+.intro{margin-bottom:28px;gap:24px}
+.intro h1{font-size:clamp(36px,5vw,62px)}
+.foldout{display:block;border:1px solid #2d3440;border-radius:9px;background:#0b0e14;min-width:0}
+.foldout>summary,.inline-help>summary{display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;min-height:44px;padding:12px 14px;color:#aeb5c0;font-size:11px;font-weight:600;line-height:1.5}
+.foldout>summary::-webkit-details-marker,.inline-help>summary::-webkit-details-marker{display:none}
+.foldout>summary::after,.inline-help>summary::after{content:"";width:6px;height:6px;flex-shrink:0;margin-left:auto;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);transition:transform .15s}
+.foldout[open]>summary::after,.inline-help[open]>summary::after{transform:rotate(225deg)}
+.foldout>summary:hover,.inline-help>summary:hover{color:#f1f3f5}
+summary:focus-visible{outline:2px solid var(--heat);outline-offset:3px;border-radius:5px}
+.foldout[open]>summary{border-bottom:1px solid #252b35}
+.foldout-body{padding:14px}
+.foldout-body>p{margin:0;color:#949aa6;font-size:12px;line-height:1.7}
+.foldout-body>p+p{margin-top:12px}
+.settings-foldout{margin-top:12px}
+.settings-foldout summary output{color:var(--heat);font:11px DM Mono,monospace;margin-left:auto;white-space:nowrap}
+.settings-foldout summary output+*{margin-left:0}
+.settings-foldout .foldout-body{padding-top:0}
+.settings-foldout .input-grid{gap:10px}
+.settings-foldout select{margin-bottom:12px}
+.inline-help{min-width:0}
+.inline-help>summary{padding:8px 0;min-height:36px;color:#89919e;font-size:11px;font-weight:500}
+.inline-help p{margin:4px 0 10px;color:#949aa6;font-size:12px;line-height:1.7}
+.scene-control .inline-help{margin-top:10px;border-top:1px solid #252b35}
+.scene-control .inline-help p{font-size:11px}
+.preview-help{margin:0 0 12px}
+#previewHelp{margin:0 0 10px}
+.perception-fixed{display:none}
+.results{align-items:start;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.result-card{padding:16px}
+.result-card header{gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.result-card header strong{font-size:15px}
+.result-card header span{font-size:10px;color:#929aa8}
+.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.metric{min-width:0}
+.metric span{font-size:9px;letter-spacing:.04em;line-height:1.5}
+.metric b{overflow-wrap:anywhere;line-height:1.45}
+.primary-metrics b{font-size:19px}
+.metric-wide{grid-column:1/-1}
+.metric-details{margin-top:16px;border:0;border-top:1px solid #29313d;border-radius:0;background:transparent}
+.metric-details>summary{padding:10px 0 0;min-height:34px;font-size:11px}
+.metric-details[open]>summary{border-bottom:0;padding-bottom:12px}
+.metric-details .animal-pixels small{font-size:10px;line-height:1.6}
+.simulation-help{display:grid;gap:8px;margin-top:18px}
+.animal-section{margin-top:32px;gap:24px;align-items:start}
+.section-copy h2{font-size:28px;margin-bottom:8px}
+.animal-card{min-height:150px}
+.formula-strip{display:block;margin-top:28px;padding:0}
+.formula-strip code{display:block;overflow-wrap:anywhere;margin-bottom:12px}
+.formula-strip .foldout-body p{font-size:12px}
+@media(max-width:600px){
+  main{padding-top:28px}
+  .intro h1{font-size:clamp(30px,8vw,44px)}
+  .results{grid-template-columns:minmax(0,1fr)}
+  .animal-section{gap:16px}
+  .animal-card{min-height:135px}
+}

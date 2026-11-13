@@ -53,6 +53,22 @@ const fs=require('node:fs');
       };
       for(let i=0;i<200&&!assetsReady;i++)await new Promise(r=>setTimeout(r,10));
       check(assetsReady,'assets initialized');
+      await settle();
+      check([...document.querySelectorAll('#results details')].every(d=>!d.open),'technical results start collapsed');
+      check(!$('#sensorDetails').open,'manual sensor settings start collapsed');
+      const firstDetails=$('#results details');
+      firstDetails.querySelector('summary').click();
+      check(firstDetails.open,'result details expand');
+      const firstAnimalPixels=firstDetails.querySelector('.animal-pixels b').textContent;
+      $('#distance').value=200;render();await settle();
+      check($('#results details').open,'result details remain open after input changes');
+      check($('#results details .animal-pixels b').textContent!==firstAnimalPixels,'expanded numbers update');
+      check(!document.querySelectorAll('#results details')[1].open,'other result cards stay collapsed');
+      $('#results details summary').click();$('#distance').value=100;render();await settle();
+      check(!$('#results details').open,'closed result stays collapsed');
+      $('#preset').value='custom';$('#preset').dispatchEvent(new Event('change'));
+      check($('#sensorDetails').open,'custom sensor selection opens manual controls');
+      $('#preset').value='640,512,12';$('#preset').dispatchEvent(new Event('change'));$('#sensorDetails').open=false;
       lenses=[35,50];renderLensList();$('#distance').value=100;$('#netd').value='off';
       for(const [src,bounds] of Object.entries(spriteBounds)){
         const image=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=src});
@@ -192,6 +208,7 @@ const fs=require('node:fs');
       fs.writeFileSync(process.env.AUDIT_SCREENSHOT,Buffer.from(shot.result.data,'base64'));
     }
     await send('Emulation.setDeviceMetricsOverride',{width:375,height:812,deviceScaleFactor:1,mobile:false});
+    await evaluate(`document.querySelectorAll('details').forEach(d=>d.open=true)`);
     await evaluate('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))');
     const mobile=await evaluate(`(()=>{
       const r=$('#animalCanvas').getBoundingClientRect(),v=values(),frame=perceptionFrame(v,calc(35,v));

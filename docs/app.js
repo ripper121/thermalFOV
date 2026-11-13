@@ -67,6 +67,7 @@ const fieldPlantLayout=Array.from({length:3000},(_,i)=>{
 });
 function snapTen(value,fallback=0){return Number.isFinite(value)?clamp(Math.round(value/10)*10,0,100):fallback}
 let lenses = [35,50];
+const expandedResults = new Set();
 let selectedAnimal = animals[0];
 let selectedScene = 'forest';
 let drawVersion = 0;
@@ -275,6 +276,7 @@ function values(){
   const invalid=inputs.find(input=>!input.checkValidity()||!Number.isFinite(input.valueAsNumber));
   inputs.forEach(input=>input.setAttribute('aria-invalid',String(!input.checkValidity()||!Number.isFinite(input.valueAsNumber))));
   $('#inputError').textContent=invalid?'Bitte alle Zahlenfelder ausfüllen und die angegebenen Eingabegrenzen beachten.':'';
+  if(invalid?.closest('details'))invalid.closest('details').open=true;
   if(invalid)return null;
   const netdValue=$('#netd').value;
   return {rw:$('#resW').valueAsNumber,rh:$('#resH').valueAsNumber,pitch:$('#pitch').valueAsNumber,d:$('#distance').valueAsNumber,z:$('#digitalZoom').valueAsNumber,netd:netdValue==='off'?null:Number(netdValue)};
@@ -289,8 +291,33 @@ function renderDistanceScale(){
   const scale=$('#distanceScale');
   scale.innerHTML=Array.from({length:50},(_,i)=>{const m=10+i*10,pct=(m-10)/490*100,major=m===10||m%50===0;return `<span class="distance-tick${major?' major':''}" style="left:${pct}%" title="${m} m">${major?`<b>${m}</b>`:''}</span>`}).join('');
 }
+function resultCard(c,i,v){
+  const animalPxW=selectedAnimal.w/c.w*v.rw,animalPxH=selectedAnimal.h/c.h*v.rh;
+  const nativePxW=selectedAnimal.w/c.opticalW*v.rw,nativePxH=selectedAnimal.h/c.opticalH*v.rh;
+  return `<article class="result-card" style="--lens:${colors[i%colors.length]}">
+    <header><strong>${c.f} mm</strong><span>${fmt(v.z,1)}× Zoom</span></header>
+    <div class="metrics primary-metrics">
+      <div class="metric"><span>Sichtfeldbreite</span><b>${fmtLength(c.w)} m</b></div>
+      <div class="metric"><span>Sichtfeldhöhe</span><b>${fmtLength(c.h)} m</b></div>
+    </div>
+    <details class="foldout metric-details" data-result-index="${i}"${expandedResults.has(i)?' open':''}>
+      <summary>Pixel &amp; Optik</summary>
+      <div class="metrics">
+        <div class="metric metric-wide"><span>Bildwinkel H / V / D</span><b>${fmt(c.hdeg)}° / ${fmt(c.vdeg)}° / ${fmt(c.ddeg)}°</b></div>
+        <div class="metric"><span>Anzeige m / px</span><b>${fmtSpatial(c.w/v.rw)}</b></div>
+        <div class="metric"><span>Nativ m / px</span><b>${fmtSpatial(c.opticalW/v.rw)}</b></div>
+        <div class="metric"><span>IFOV</span><b>${fmt(c.ifov,c.ifov<.1?3:2)} mrad</b></div>
+        <div class="metric animal-pixels"><span>${selectedAnimal.name} im Bild</span><b>${fmtPx(animalPxW)} × ${fmtPx(animalPxH)} px</b><small>Nativ erfasst: ${fmtPx(nativePxW)} × ${fmtPx(nativePxH)} Sensorpixel</small></div>
+      </div>
+    </details>
+  </article>`;
+}
 function render(){
   if(!assetsReady)return;
+  document.querySelectorAll('#results details').forEach(detail=>{
+    const index=Number(detail.dataset.resultIndex);
+    if(detail.open)expandedResults.add(index);else expandedResults.delete(index);
+  });
   const v=values();
   $('#viewport').hidden=!v;
   if(!v){++drawVersion;$('#results').innerHTML='';$('#sensorSize').textContent='—';return}
@@ -313,7 +340,7 @@ function render(){
   $('#axisX').textContent=`↔ ${fmtPerception(frame.w)} m`;$('#axisY').textContent=`↕ ${fmtPerception(frame.h)} m`;
   const sceneLabel=selectedScene==='forest'?`Wald mit ${forestTreeCount()} zusätzlichen Bäumen`:selectedScene==='field'?`Feld mit ${fieldPlantCount()} zusätzlichen Pflanzen`:'schwarzem Hintergrund';
   const av=$('#animalVisual');av.title=`${selectedAnimal.name}: ${selectedAnimal.size}. Ziehen zum Verschieben und Ändern der Entfernung.`;$('#animalCanvas').setAttribute('aria-label',`${selectedAnimal.name} vor ${sceneLabel} im ${frame.name}, White Hot. Mit der Maus verschiebbar; die Höhe bestimmt die Entfernung.`);drawPixelScene(v,frame,previewCamera).catch(error=>{$('#inputError').textContent=error.message});
-  $('#results').innerHTML=cs.map((c,i)=>{const animalPxW=selectedAnimal.w/c.w*v.rw,animalPxH=selectedAnimal.h/c.h*v.rh,nativePxW=selectedAnimal.w/c.opticalW*v.rw,nativePxH=selectedAnimal.h/c.opticalH*v.rh;return `<article class="result-card" style="--lens:${colors[i%colors.length]}"><header><strong>${c.f} mm · ${fmt(v.z,1)}×</strong><span>H ${fmt(c.hdeg)}° · V ${fmt(c.vdeg)}° · D ${fmt(c.ddeg)}°</span></header><div class="metrics"><div class="metric"><span>FOV Breite</span><b>${fmtLength(c.w)} m</b></div><div class="metric"><span>FOV Höhe</span><b>${fmtLength(c.h)} m</b></div><div class="metric"><span>Anzeige m / px</span><b>${fmtSpatial(c.w/v.rw)}</b></div><div class="metric"><span>Nativ m / px</span><b>${fmtSpatial(c.opticalW/v.rw)}</b></div><div class="metric"><span>IFOV</span><b>${fmt(c.ifov,c.ifov<.1?3:2)} mrad</b></div><div class="metric animal-pixels"><span>${selectedAnimal.name} im Bild</span><b>${fmtPx(animalPxW)} × ${fmtPx(animalPxH)} px</b><small>Nativ erfasst: ${fmtPx(nativePxW)} × ${fmtPx(nativePxH)} Sensorpixel</small></div></div></article>`}).join('');
+  $('#results').innerHTML=cs.map((c,i)=>resultCard(c,i,v)).join('');
   const pct=(v.d-10)/490*100;$('#distance').style.background=`linear-gradient(90deg,var(--heat) ${pct}%,#343a45 ${pct}%)`;
 }
 
@@ -367,7 +394,7 @@ $('#animalCanvas').addEventListener('pointerup',finishAnimalDrag);
 $('#animalCanvas').addEventListener('pointercancel',finishAnimalDrag);
 $('#animalCanvas').addEventListener('pointerleave',()=>{if(!animalDrag)$('#animalVisual').classList.remove('can-drag')});
 
-$('#preset').addEventListener('change',e=>{if(e.target.value==='custom')return;const [w,h,p]=e.target.value.split(',');$('#resW').value=w;$('#resH').value=h;$('#pitch').value=p;render()});
+$('#preset').addEventListener('change',e=>{if(e.target.value==='custom'){$('#sensorDetails').open=true;return}const [w,h,p]=e.target.value.split(',');$('#resW').value=w;$('#resH').value=h;$('#pitch').value=p;render()});
 ['resW','resH','pitch'].forEach(id=>$('#'+id).addEventListener('input',()=>{$('#preset').value='custom';render()}));
 $('#distance').addEventListener('input',render);
 $('#digitalZoom').addEventListener('input',render);

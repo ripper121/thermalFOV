@@ -20,6 +20,7 @@ Interaktiver, statischer FOV-Rechner für Wärmebildkameras. Die Website berechn
 - gemeinsame Bodenperspektive mit 1,60 m Beobachterhöhe; bei eingeschaltetem Vergleichsausschnitt waagerechte Kamera, ansonsten folgt der Bildausschnitt dem Tier und hält es horizontal und vertikal zentriert
 - auswählbare Vorschaubrennweite; Tier, Bewuchs und Rauschvorschau teilen ein natives Sensorpixelraster
 - responsive Darstellung für Desktop und Mobilgeräte
+- kompakte Ergebnisübersicht mit aufklappbaren Pixel-/Optikwerten, erweiterten Sensoreinstellungen und Erläuterungen; geöffnete Ergebnisdetails bleiben beim Ändern der Eingaben geöffnet
 
 Die veröffentlichte Website wird per GitHub Actions direkt aus `docs/` auf GitHub Pages bereitgestellt.
 

@@ -44,12 +44,17 @@
             <option value="custom">Benutzerdefiniert</option>
           </select>
         </label>
+        <details id="sensorDetails" class="foldout settings-foldout">
+          <summary>Sensor manuell einstellen</summary>
+          <div class="foldout-body">
         <div class="input-grid">
           <label>Breite <span>px</span><input id="resW" type="number" min="80" max="2048" value="640"></label>
           <label>Höhe <span>px</span><input id="resH" type="number" min="60" max="2048" value="512"></label>
         </div>
         <label>Pixelabstand <span>µm</span><input id="pitch" type="number" min="5" max="50" step="0.1" value="12"></label>
         <div class="sensor-readout"><span>Aktive Sensorgröße</span><strong id="sensorSize">7,68 × 6,14 mm</strong></div>
+          </div>
+        </details>
         <p id="inputError" class="input-error" role="status" aria-live="polite"></p>
 
         <div class="zoom-control">
@@ -59,8 +64,10 @@
           <p>Vergrößert den Bildausschnitt, erzeugt aber keine zusätzlichen Sensordetails.</p>
         </div>
 
-        <div class="netd-control">
-          <div class="netd-head"><label for="netd">NETD · thermische Empfindlichkeit</label><output id="netdLabel" for="netd">Aus</output></div>
+        <details class="foldout settings-foldout">
+          <summary><span>Thermische Empfindlichkeit</span><output id="netdLabel" for="netd">Aus</output></summary>
+          <div class="foldout-body">
+          <label for="netd">NETD</label>
           <select id="netd" aria-describedby="netdHelp">
             <option value="off" selected>Aus</option>
             <option value="15">15 mK</option>
@@ -73,7 +80,8 @@
             <option value="50">50 mK</option>
           </select>
           <p id="netdHelp">Kleinerer Wert = weniger Rauschen. Illustrativer Effekt ohne Temperaturkalibrierung; keine Vorhersage der Erkennungsleistung.</p>
-        </div>
+          </div>
+        </details>
 
         <div class="scene-control">
           <div class="scene-head"><span>Hintergrund</span><small>White Hot</small></div>
@@ -82,7 +90,6 @@
             <button type="button" data-scene="field">Feld</button>
             <button type="button" data-scene="none">Aus</button>
           </div>
-          <p>Warme Bereiche weiß · kalte Bereiche schwarz. Baumsaum im Hintergrund auf 500 m abgestimmt; nahe Bäume und Pflanzen werden separat simuliert.</p>
           <div id="treeControl" class="tree-control">
             <div class="tree-head">
               <label for="treeCount">Baumdichte</label>
@@ -90,7 +97,6 @@
             </div>
             <input id="treeCount" type="range" min="0" max="100" value="0" step="10">
             <div class="tree-scale"><span>0</span><span>50</span><span>100</span></div>
-            <p>Baumgruppen mit Jungwuchs und natürlichen Lücken · 10–500 m · Dichte in 10er-Schritten</p>
           </div>
           <div id="fieldPlantControl" class="tree-control" hidden>
             <div class="tree-head">
@@ -99,8 +105,11 @@
             </div>
             <input id="fieldPlantCount" type="range" min="0" max="100" value="0" step="10">
             <div class="tree-scale"><span>0</span><span>50</span><span>100</span></div>
-            <p>Flächiger Rüben- und Rapsbewuchs mit Büschen am Rand · 10–500 m · Dichte in 10er-Schritten</p>
           </div>
+          <details class="inline-help">
+            <summary>Hintergrund &amp; Bewuchs erklärt</summary>
+            <p>White Hot: warme Bereiche weiß, kalte Bereiche schwarz. Der entfernte Baumsaum ist auf 500 m abgestimmt. Zusätzlicher Bewuchs liegt zwischen 10 und 500 m: im Wald Baumgruppen mit Jungwuchs, im Feld flächige Rüben- und Rapsbestände mit Büschen am Rand. Dichte in 10er-Schritten; nahe Vegetation kann das Tier verdecken.</p>
+          </details>
         </div>
 
         <div class="divider"></div>
@@ -145,7 +154,10 @@
         </div>
 
         <label class="preview-control" for="previewLens">Kameravorschau <select id="previewLens" aria-describedby="previewHelp"></select></label>
-        <p class="simulation-note" id="previewHelp">Der gewählte Kamerarahmen zeigt das Sensorbild. Außerhalb liegt die geometrische Umgebung. Beobachterhöhe: 1,60 m · <span id="cameraAimLabel">Kamera waagerecht</span> · ebener Boden.</p>
+        <details class="inline-help preview-help">
+          <summary>So liest du die Vorschau</summary>
+          <p class="simulation-note" id="previewHelp">Der gewählte Kamerarahmen zeigt das Sensorbild. Außerhalb liegt die geometrische Umgebung. Beobachterhöhe: 1,60 m · <span id="cameraAimLabel">Kamera waagerecht</span> · ebener Boden.</p>
+        </details>
         <div class="viewport" id="viewport">
           <div class="scanlines"></div>
           <div id="fovLayers" class="fov-layers"></div>
@@ -164,25 +176,42 @@
         </div>
 
         <div id="results" class="results"></div>
+        <div class="simulation-help">
+        <details class="foldout">
+          <summary>Pixelwerte &amp; Grenzen der Simulation</summary>
+          <div class="foldout-body">
         <p class="simulation-note">Winkel und Sichtfeld gelten für den gewählten Digitalzoom. „Anzeige m / px“ bezieht sich auf das simulierte Ausgaberaster in Sensorauflösung, „Nativ m / px“ auf die Objektebene pro Sensorpixel. IFOV ≈ Pixelabstand / Brennweite bleibt beim Digitalzoom gleich. Tierpixel sind projizierte Gesamtmaße; am Bildrand wird das Tier beschnitten. Die NETD-Darstellung simuliert relatives Sensorrauschen, ist aber keine radiometrische Messung.</p>
+          </div>
+        </details>
+        <details class="foldout">
+          <summary>Seheindruck, Perspektive &amp; Nachführung</summary>
+          <div class="foldout-body">
         <p class="simulation-note">Der feste Ausschnitt von 39,6° × 27,0° dient als grobe Orientierung für einen zentralen Sehausschnitt des menschlichen Auges. Der tatsächliche Seheindruck hängt auch von Bildschirmgröße und Betrachtungsabstand ab; das gesamte menschliche Gesichtsfeld ist größer. Ausgeschaltet bildet das größte Kamerasichtfeld den äußeren Maßstab und der Bildausschnitt hält das Tier horizontal und vertikal in der Mitte. Die Umgebung folgt derselben Verschiebung. Alle Objekte teilen dieselbe Bodenperspektive; die waagerechten Bodenlinien liegen bei 10, 20, 50, 100, 200, 500 und 1000 m. Bei eingeschaltetem Vergleichsausschnitt bleibt die Kamera waagerecht. Tier und Vegetation im gewählten Kamerarahmen werden gemeinsam in Sensorauflösung gerastert; Digitalzoom vergrößert nur dieses Raster. Übergroße Tiere werden am Bildrand beschnitten.</p>
+          </div>
+        </details>
+        </div>
       </section>
     </section>
 
     <section class="animal-section">
       <div class="section-copy">
         <p class="eyebrow">GRÖSSENREFERENZ</p>
-        <h2>Wild im Zentrum</h2>
+        <h2>Tier auswählen</h2>
+        <details class="inline-help">
+          <summary>Tiermaße &amp; Wärmebild erklärt</summary>
         <p>Die Maße beschreiben die gesamte sichtbare Silhouette einschließlich Kopf, Ohren, Geweih und Schwanz, keine Schulterhöhe. Die Beispielbreite legt den Maßstab fest; die Höhe folgt aus den unverzerrten Grafikproportionen. Tiergrößen variieren in der Praxis. Die Graustufen sind illustrativ: Temperaturen, Fell, Wetter, Fokus, Beugung und Bildverarbeitung werden nicht physikalisch simuliert.</p>
+        </details>
       </div>
       <div id="animalPicker" class="animal-picker"></div>
     </section>
 
-    <section class="formula-strip">
-      <span>FORMEL</span>
+    <details class="foldout formula-strip">
+      <summary>Berechnungsgrundlage &amp; Formel</summary>
+      <div class="foldout-body">
       <code>Winkel = 2 × atan(Sensorgröße ÷ (2 × Brennweite)) · Sichtfeld = 2 × Distanz × tan(Winkel ÷ 2)</code>
       <p>Idealisiertes, verzeichnungsfreies Objektiv mit quadratischen Sensorpixeln. Sensorgröße = Pixelzahl × Pixelabstand / 1000 (µm → mm). Digitalzoom beschneidet jede Bildachse um den Zoomfaktor. Reales Sichtfeld kann durch Verzeichnung, Fokus und Gerätebeschnitt abweichen. <a href="https://www.arducam.com/blog/fov-calculator/" target="_blank" rel="noopener noreferrer">Berechnungsgrundlage: Arducam</a>.</p>
-    </section>
+      </div>
+    </details>
   </main>
 
   <footer>
