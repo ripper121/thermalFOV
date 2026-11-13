@@ -54,6 +54,8 @@ const fs=require('node:fs');
       for(let i=0;i<200&&!assetsReady;i++)await new Promise(r=>setTimeout(r,10));
       check(assetsReady,'assets initialized');
       await settle();
+      check(!$('#previewLens'),'camera preview selector is removed');
+      check([...document.querySelectorAll('.fov-layer')].every(frame=>!/Vorschau|preview/.test(frame.dataset.label)),'focal length frames have no preview marker');
       const initialPreference=thermalI18n.preference;
       $('#language').value='en';$('#language').dispatchEvent(new Event('change'));await settle();
       check(document.documentElement.lang==='en'&&document.title==='Thermal FOV Calculator','English document language and title');
@@ -126,20 +128,20 @@ const fs=require('node:fs');
         for(const scene of ['forest','field','none'])for(const perception of [true,false])for(const zoom of [1,8]){
           document.querySelector('[data-scene="'+scene+'"]').click();
           $('#perceptionEnabled').checked=perception;$('#digitalZoom').value=zoom;
-          $('#previewLens').value='1';render();await settle();
+          render();await settle();
           const v=values(),outer=calc(35,v),frame=perceptionFrame(v,outer),canvas=$('#animalCanvas');
           check(close(animalBounds.bottom/canvas.height,groundY(100,v,frame)),animal.id+'/'+scene+'/'+perception+'/'+zoom+': shared ground plane');
           if(!perception){
             check(close(animalBounds.centerX/canvas.width,.5),'tracked horizontal centre');
             check(close(animalBounds.centerY/canvas.height,.5),'tracked vertical centre');
           }
-          check(canvas.dataset.previewLens==='50','selected lens is rendered');
+          check(canvas.dataset.rasterLens==='35','shortest focal length supplies the shared sensor raster');
           check(close(animalBounds.w/canvas.width,animal.w/frame.w),'silhouette width matches metric scale');
           check(!$('#inputError').textContent,'no rendering error');
         }
       }
       selectedAnimal=animals[0];animalWorldX=2;
-      $('#perceptionEnabled').checked=false;$('#previewLens').value='0';
+      $('#perceptionEnabled').checked=false;
       for(const option of [...$('#preset').options].filter(o=>o.value!=='custom')){
         $('#preset').value=option.value;$('#preset').dispatchEvent(new Event('change'));await settle();
         const v=values(),frame=calc(35,v),canvas=$('#animalCanvas');
@@ -153,7 +155,7 @@ const fs=require('node:fs');
       check(Math.abs($('#animalCanvas').width/$('#animalCanvas').height-2048/60)<.1,'extreme landscape sensor');
       $('#resW').value='';render();check($('#viewport').hidden,'invalid input hides scene');
       $('#preset').value='640,512,12';$('#preset').dispatchEvent(new Event('change'));
-      $('#distance').value=100;$('#digitalZoom').value=1;$('#previewLens').value='0';
+      $('#distance').value=100;$('#digitalZoom').value=1;
       $('#perceptionEnabled').checked=true;animalWorldX=0;selectedAnimal=animals[0];
       document.querySelector('[data-scene="forest"]').click();renderAnimals();render();await settle();
       for(const netd of ['15','18','20','25','30','35','40','50','off']){
@@ -172,9 +174,11 @@ const fs=require('node:fs');
         const unzoomed=new Uint8ClampedArray(data());
         $('#digitalZoom').value=8;render();await settle();
         check(data().every((value,i)=>value===unzoomed[i]),'digital zoom preserves the complete native sensor image');
-        $('#digitalZoom').value=1;$('#previewLens').value=1;render();await settle();
-        check(data().some((value,i)=>value!==unzoomed[i]),'changing preview lens changes captured sensor detail');
-        $('#previewLens').value=0;
+        $('#digitalZoom').value=1;lenses=[50,75];renderLensList();render();await settle();
+        check(data().some((value,i)=>value!==unzoomed[i]),'changing the shortest focal length changes captured sensor detail');
+        lenses=[50,35];renderLensList();render();await settle();
+        check($('#animalCanvas').dataset.rasterLens==='35','shared raster is independent of focal length order');
+        lenses=[35,50];renderLensList();
         const source='assets/thermal-field-bush.png',savedSprite=rasterCache.get(source),savedLayout=fieldPlantLayout.slice(),savedDensity=$('#fieldPlantCount').value;
         const solid=document.createElement('canvas');solid.width=100;solid.height=100;
         const ctx=solid.getContext('2d');ctx.fillStyle='rgb(20,20,20)';ctx.fillRect(0,0,100,100);
@@ -200,12 +204,12 @@ const fs=require('node:fs');
       }
       check($('#distance').step==='10','distance slider uses ten metre steps');
       $('#perceptionEnabled').checked=false;animalWorldX=-3;
-      for(const distance of [10,100,500])for(const zoom of [1,8])for(const preview of [0,1]){
-        $('#distance').value=distance;$('#digitalZoom').value=zoom;$('#previewLens').value=preview;
+      for(const distance of [10,100,500])for(const zoom of [1,8])for(const focal of [35,50]){
+        $('#distance').value=distance;$('#digitalZoom').value=zoom;lenses=[focal,focal+15];renderLensList();
         render();await settle();
-        check($('#animalCanvas').dataset.animalX==='0.5000'&&$('#animalCanvas').dataset.animalY==='0.5000','tracking '+distance+'/'+zoom+'/'+preview);
+        check($('#animalCanvas').dataset.animalX==='0.5000'&&$('#animalCanvas').dataset.animalY==='0.5000','tracking '+distance+'/'+zoom+'/'+focal);
       }
-      $('#perceptionEnabled').checked=true;$('#distance').value=100;$('#digitalZoom').value=1;$('#previewLens').value=0;animalWorldX=0;
+      $('#perceptionEnabled').checked=true;$('#distance').value=100;$('#digitalZoom').value=1;lenses=[35,50];renderLensList();animalWorldX=0;
       selectedScene='forest';render();await settle();
       return {checks:checks.length,animals:animals.map(a=>({name:a.name,size:a.size}))};
     })()`);

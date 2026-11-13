@@ -18,7 +18,7 @@ Interaktiver, statischer FOV-Rechner für Wärmebildkameras. Die Website berechn
 - Baum- und Feldbewuchs starten bei jedem Laden mit 0 %; die atmosphärischen Hintergrundbilder bleiben sichtbar
 - optional zuschaltbarer Vergleichsausschnitt von 39,6° horizontal × 27,0° vertikal; ausgeschaltet wird das größte Kamerasichtfeld verwendet
 - gemeinsame Bodenperspektive mit 1,60 m Beobachterhöhe; bei eingeschaltetem Vergleichsausschnitt waagerechte Kamera, ansonsten folgt der Bildausschnitt dem Tier und hält es horizontal und vertikal zentriert
-- auswählbare Vorschaubrennweite; Tier, Bewuchs und Rauschvorschau teilen ein natives Sensorpixelraster
+- gemeinsames Sensorbild anhand der kürzesten Brennweite; Tier, Bewuchs und Rauschvorschau teilen ein natives Sensorpixelraster, die farbigen Rahmen vergleichen die Brennweiten
 - responsive Darstellung für Desktop und Mobilgeräte
 - Deutsch und Englisch mit automatischer Wahl anhand der primären Browsersprache (Deutsch bei `de`, sonst Englisch); gespeicherte manuelle Sprachwahl über „Sprache / Language“, inklusive lokalisierten Zahlen, Beschriftungen und Hilfetexten
 - kompakte Ergebnisübersicht mit aufklappbaren Pixel-/Optikwerten, erweiterten Sensoreinstellungen und Erläuterungen; geöffnete Ergebnisdetails bleiben beim Ändern der Eingaben geöffnet
@@ -39,8 +39,8 @@ Bei quadratischen Pixeln gilt für jede Achse:
 Für die Diagonale wird die Sensordiagonale aus Breite und Höhe berechnet.
 „Anzeige m / px“ nutzt ein simuliertes Ausgaberaster in Sensorauflösung. Digitalzoom
 vergrößert einen Ausschnitt des zuvor gerasterten Sensorbildes und erhöht die
-native Detailauflösung nicht. Die Vorschau nutzt das Raster der ausgewählten
-Vorschaubrennweite; weitere Brennweiten werden als Sichtfeldrahmen dargestellt.
+native Detailauflösung nicht. Die Vorschau nutzt automatisch das Raster der kürzesten
+Brennweite; weitere Brennweiten werden als Sichtfeldrahmen dargestellt.
 Auch Vegetation und Rauschvorschau werden vor dem Digitalzoom gerastert.
 
 Der Ursprung liegt auf der optischen Achse. Bei waagerechter Kamera und ebenem
@@ -112,7 +112,7 @@ Geprüft am 13.11.2026:
 - `node --check docs/app.js`
 - `node --check docs/i18n.js` und `node --test tests/i18n.test.cjs`: Browser-Spracherkennung, manuelle Auswahl, gespeicherte Sprache, gesperrter Speicher und lokalisierte Zahlen/Übersetzungsparameter.
 - `node --test tests/geometry.test.cjs`: Herstellerreferenz, 720 Kombinationen aus Sensor, Entfernung, Zoom und Brennweite, gemeinsame Bodenebene, inverse Zugprojektion und feste Weltpositionen.
-- `node tests/browser-realism.cjs`: Browserprüfungen einschließlich aller Tier- und Hintergrundvarianten, Sensorvoreinstellungen, extremer Seitenverhältnisse, Silhouettenzuschnitt, identischem nativem Sensorbild bei Digitalzoom, Vorschaubrennweite, Verdeckung, NETD-Auswahl, ungültiger Eingaben und echtem Mausziehen.
+- `node tests/browser-realism.cjs`: Browserprüfungen einschließlich aller Tier- und Hintergrundvarianten, Sensorvoreinstellungen, extremer Seitenverhältnisse, Silhouettenzuschnitt, identischem nativem Sensorbild bei Digitalzoom, automatischem Brennweitenraster, Verdeckung, NETD-Auswahl, ungültiger Eingaben und echtem Mausziehen.
 
 Der Browsertest benötigt Node.js 22 oder neuer und einen separaten Chromium-/Edge-
 Testprozess mit `--remote-debugging-port=9227` und geöffnetem `docs/index.html`.

@@ -90,8 +90,6 @@ main{max-width:1440px;margin:auto;padding:58px max(22px,4vw) 70px}.intro{display
 /* Keep measurement overlays above the opaque sensor canvas. */
 .scanlines{z-index:6}.fov-layer{z-index:7}.crosshair{z-index:8}.axis,.distance-chip,.resolution-chip{z-index:9}
 .scanlines,.fov-layer,.crosshair,.axis,.distance-chip,.resolution-chip{pointer-events:none}
-.preview-control{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:#a1a6ae;font-size:12px;margin-bottom:10px}
-.preview-control select{padding:7px 10px;border:1px solid #343b47;border-radius:6px;color:#e8ebef;background:#121720;font:12px DM Mono,monospace}
 #previewHelp{margin-bottom:14px}
 .intro>div{min-width:0}
 @media(max-width:600px){.intro h1{font-size:clamp(30px,8vw,44px);overflow-wrap:anywhere}}

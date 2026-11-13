@@ -267,7 +267,7 @@ async function drawPixelScene(v,frame,cameraOuter){
   const centerX=animalScreenX(v,frame)*canvas.width,centerY=animalGroundY(v.d,v,frame)*canvas.height,left=centerX-w/2,top=centerY-h/2;
   animalBounds={left,top,right:left+w,bottom:top+h,centerX,centerY,w,h};
   canvas.dataset.animalX=(centerX/canvas.width).toFixed(4);canvas.dataset.animalY=(centerY/canvas.height).toFixed(4);canvas.dataset.animalDistance=String(v.d);
-  canvas.dataset.previewLens=String(cameraOuter.f);
+  canvas.dataset.rasterLens=String(cameraOuter.f);
   canvas.dataset.netd=v.netd===null?'off':String(v.netd);
   canvas.dataset.drawVersion=String(version);
 }
@@ -324,9 +324,6 @@ function render(){
   $('#viewport').hidden=!v;
   if(!v){++drawVersion;$('#results').innerHTML='';$('#sensorSize').textContent='—';return}
   const cs=lenses.map(f=>calc(f,v)),cameraOuter=cs.reduce((a,b)=>a.w>b.w?a:b),frame=perceptionFrame(v,cameraOuter),perceptionEnabled=frame.isPerception;
-  const previewSelect=$('#previewLens'),previewIndex=clamp(Number(previewSelect.value)||0,0,cs.length-1);
-  previewSelect.innerHTML=cs.map((c,i)=>`<option value="${i}">${fmt(c.f,1)} mm</option>`).join('');previewSelect.value=String(previewIndex);
-  const previewCamera=cs[previewIndex];
   const viewport=$('#viewport'),ratio=frame.w/frame.h,gridRows=16/ratio;
   viewport.style.setProperty('--sensor-ratio',ratio);
   viewport.style.setProperty('--grid-x','6.25%');
@@ -338,10 +335,10 @@ function render(){
   $('#cameraAimLabel').textContent=perceptionEnabled?t('Kamera waagerecht'):t('Bildausschnitt folgt dem Tier');
   $('.drag-hint').textContent=perceptionEnabled?t('Tier ziehen · Höhe ändert Entfernung'):t('Tier ziehen · Bildausschnitt folgt');
   const layers=$('#fovLayers');layers.innerHTML='';
-  cs.slice().sort((a,b)=>b.w-a.w).forEach(c=>{const el=document.createElement('div'),i=cs.indexOf(c);el.className='fov-layer';el.style.setProperty('--lens',colors[i%colors.length]);el.style.width=`${(c.w/frame.w)*100}%`;el.style.height=`${(c.h/frame.h)*100}%`;el.dataset.label=`${fmtFocal(c.f)} mm${i===previewIndex?t(' (Vorschau)'):''} · ${fmtLength(c.w)} × ${fmtLength(c.h)} m · ${fmt(v.z,1)}×`;layers.append(el)});
+  cs.slice().sort((a,b)=>b.w-a.w).forEach(c=>{const el=document.createElement('div'),i=cs.indexOf(c);el.className='fov-layer';el.style.setProperty('--lens',colors[i%colors.length]);el.style.width=`${(c.w/frame.w)*100}%`;el.style.height=`${(c.h/frame.h)*100}%`;el.dataset.label=`${fmtFocal(c.f)} mm · ${fmtLength(c.w)} × ${fmtLength(c.h)} m · ${fmt(v.z,1)}×`;layers.append(el)});
   $('#axisX').textContent=`↔ ${fmtPerception(frame.w)} m`;$('#axisY').textContent=`↕ ${fmtPerception(frame.h)} m`;
   const sceneLabel=selectedScene==='forest'?t('Wald mit {n} zusätzlichen Bäumen',{n:forestTreeCount()}):selectedScene==='field'?t('Feld mit {n} zusätzlichen Pflanzen',{n:fieldPlantCount()}):t('schwarzem Hintergrund');
-  const av=$('#animalVisual');av.title=t('{animal}: {size}. Ziehen zum Verschieben und Ändern der Entfernung.',{animal:selectedAnimal.name,size:selectedAnimal.size});$('#animalCanvas').setAttribute('aria-label',t('{animal} vor {scene} im {frame}, White Hot. Mit der Maus verschiebbar; die Höhe bestimmt die Entfernung.',{animal:selectedAnimal.name,scene:sceneLabel,frame:frame.name}));drawPixelScene(v,frame,previewCamera).catch(error=>{$('#inputError').textContent=error.message});
+  const av=$('#animalVisual');av.title=t('{animal}: {size}. Ziehen zum Verschieben und Ändern der Entfernung.',{animal:selectedAnimal.name,size:selectedAnimal.size});$('#animalCanvas').setAttribute('aria-label',t('{animal} vor {scene} im {frame}, White Hot. Mit der Maus verschiebbar; die Höhe bestimmt die Entfernung.',{animal:selectedAnimal.name,scene:sceneLabel,frame:frame.name}));drawPixelScene(v,frame,cameraOuter).catch(error=>{$('#inputError').textContent=error.message});
   $('#results').innerHTML=cs.map((c,i)=>resultCard(c,i,v)).join('');
   const pct=(v.d-10)/490*100;$('#distance').style.background=`linear-gradient(90deg,var(--heat) ${pct}%,#343a45 ${pct}%)`;
 }
@@ -400,7 +397,6 @@ $('#preset').addEventListener('change',e=>{if(e.target.value==='custom'){$('#sen
 ['resW','resH','pitch'].forEach(id=>$('#'+id).addEventListener('input',()=>{$('#preset').value='custom';render()}));
 $('#distance').addEventListener('input',render);
 $('#digitalZoom').addEventListener('input',render);
-$('#previewLens').addEventListener('change',render);
 $('#netd').addEventListener('change',e=>{try{localStorage.setItem('thermalFovNetd',e.target.value)}catch{}render()});
 $('#perceptionEnabled').addEventListener('change',e=>{try{localStorage.setItem('thermalFovPerceptionEnabled',String(e.target.checked))}catch{}render()});
 $('#treeCount').addEventListener('input',e=>{e.target.value=snapTen(e.target.valueAsNumber);updateSceneControls();render()});
