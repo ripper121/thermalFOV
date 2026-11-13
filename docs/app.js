@@ -33,7 +33,7 @@ const spriteBounds = {
   'assets/thermal-field-beet.png':[19,24,1798,833],
   'assets/thermal-field-rapeseed.png':[31,19,1737,868]
 };
-const humanPerception = {name:'Vergleichsausschnitt',ha:39.6,va:27};
+const humanPerception = {name:'Zentraler Sehausschnitt',ha:39.6,va:27};
 const observerHeight = 1.6;
 function fixedUnit(index,salt){const value=Math.sin((index+1)*12.9898+salt*78.233)*43758.5453;return value-Math.floor(value)}
 // Stable world coordinates: irregular stands across the view, crops across the field.
